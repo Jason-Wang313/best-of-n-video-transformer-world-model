@@ -1,0 +1,302 @@
+\documentclass{article}
+
+\usepackage{iclr2026_conference,times}
+\input{math_commands.tex}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{xcolor}
+
+\hypersetup{hidelinks}
+\graphicspath{{../figures/}}
+
+\title{When Plausible Videos Lie:\\Best-of-N Selection Can Break\\Action-Conditioned Video Futures}
+
+% The ICLR submission style hides this block while \iclrfinalcopy remains commented.
+\author{Anonymous authors\\Paper under double-blind review}
+
+\newcommand{\bon}{Best-of-N}
+\newcommand{\nset}{\{1,2,4,8,16,32,64\}}
+\DeclareRobustCommand{\resultfile}[1]{\nolinkurl{#1}}
+\newcommand{\score}{s}
+\newcommand{\utility}{u}
+\newcommand{\selected}{\mathrm{sel}}
+
+%\iclrfinalcopy
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\bon{} selection is a natural way to use generated video futures: sample many futures, score them for plausibility or goal progress, and execute the action sequence attached to the highest-scoring video. We show that this can create a selected-tail failure mode even when the selected video is visually smooth and goal-like. In a controlled action-conditioned RGB grid world, high-\(N\) visual selection increasingly chooses videos that cross a hidden wall or emerge from an occluder without a valid action-conditioned path. From \(N=1\) to \(N=64\), the selected visual plausibility increases by \(0.072\) while executed utility falls by \(1.52\), and a three-seed check gives a mean utility drop of \(1.90\). We contribute a counterfactual video benchmark, a tie-aware finite-pool law for exact \bon{} accounting, video-specific diagnostics, and a scoped repair gate using action consistency, temporal causality, occlusion uncertainty, frame-state agreement, and small held-out calibration. The claim is intentionally narrow: this is a controlled warning and audit protocol for action-conditioned video futures, not evidence of broad deployment validity.
+\end{abstract}
+
+\section{Introduction}
+
+Generated video futures are compelling because they show what might happen rather than merely assigning a value to it. This makes them attractive for model-based control, offline planning, and reranking: sample candidate futures conditioned on actions, score the imagined videos, and choose the best-looking rollout. The same visual concreteness can also hide a failure. A video can look smooth, goal-reaching, and temporally plausible while no longer being faithful to the actions that supposedly caused it.
+
+This paper isolates that failure in a controlled setting. The environment is an \(8 \times 8\) grid rendered into RGB video frames. The agent begins left of a vertical wall, the goal lies to the right, and a grey occluder covers the visually tempting crossing region. The real dynamics block the direct path. A generated future may nevertheless show the agent smoothly passing through the hidden wall, then reaching the goal. If the scorer rewards visual smoothness, directness, goal-frame similarity, or a learned video prior, increasing \(N\) makes this attractive but action-inconsistent tail more likely to be selected.
+
+Figure~\ref{fig:lineup} shows the central counterfactual: the selected generated video is paired with the real execution of the same selected actions. The generated future reaches the goal; the executed rollout stalls at the wall. This pairing is the key experimental object. We do not evaluate a video by asking whether it looks plausible in isolation. We evaluate the action sequence attached to that video under the ground-truth transition model.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure1_counterfactual_video_lineup.png}
+  \caption{Counterfactual video lineup from \resultfile{results/experiment_video_best_of_n_failure.json}. For each \(N\), the top row displays the selected generated future and the bottom row displays the real execution of the same action sequence. High-\(N\) selection favors smooth, goal-like videos whose selected actions are blocked by the real dynamics.}
+  \label{fig:lineup}
+\end{figure}
+
+\paragraph{Contributions.}
+First, we provide a minimal video world in which visual plausibility and action-conditioned utility become anti-aligned under high-\(N\) selection. Second, we give an exact finite-pool law for the expected utility of \bon{} selection with score ties. Third, we define video-specific diagnostics for action consistency, temporal causality, occlusion uncertainty, and frame-state agreement. Fourth, we evaluate a scoped repair ladder and a deployment gate whose labels are explicitly bounded. All claims are linked to reproducible artifacts under \resultfile{results/}, \resultfile{results/tables/}, and \resultfile{figures/}; the repository claim audit reports zero unsupported claims in \resultfile{results/claims_status.json}.
+
+\section{Related Work}
+
+\paragraph{Video prediction and visual planning.}
+Video prediction has long been used as an intermediate representation for physical prediction and control \citep{finn2016unsupervised,babaeizadeh2018stochastic,villegas2017learning,ebert2018visualforesight}. These systems expose a useful tension: a rollout can be visually coherent while still being wrong in the downstream quantities needed for control. Our setting removes most of the modeling complexity so that the selected-tail effect can be inspected frame by frame.
+
+\paragraph{World models and model-based control.}
+Learned dynamics models support planning by rolling out imagined futures \citep{chua2018deep,hafner2019planet,hafner2020dreamer,schrittwieser2020mastering,hafner2023mastering}. A recurring concern in this literature is model exploitation: planners may choose trajectories that exploit model errors rather than real dynamics. We study a video-space version where the exploited object is a plausible rendered future, and where the mismatch is diagnosed by executing the selected actions in a known simulator.
+
+\paragraph{Reranking, reward overoptimization, and selected tails.}
+Sampling many candidates and selecting by a learned or proxy score appears in verifier-guided reasoning, reward-model selection, and preference optimization \citep{stiennon2020learning,cobbe2021training,gao2022scaling}. These works motivate our focus on the order statistic induced by selection. Our finite law is not a new learning algorithm; it is an audit layer that predicts the expected selected utility of a fixed empirical score-utility pool.
+
+\paragraph{What is different here.}
+The failure is not token aliasing, text-only reward hacking, or latent imagination drift. Each candidate contains a rendered video, an action sequence, a predicted trajectory, and a true executed trajectory. The gap is therefore visible: the selected video can lie about the future induced by its own actions.
+
+\section{Problem Setup}
+
+Let \(x_0\) be an initial state and let \(a_{1:T}\) be a candidate action sequence. A video future generator returns predicted states \(\hat{x}_{0:T}\), predicted frames \(\hat{v}_{0:T}\), and the same actions \(a_{1:T}\). The real environment transition \(P\) induces an executed trajectory \(x_{0:T}=P(x_0,a_{1:T})\). A scorer assigns each candidate an internal score \(\score_i\) from the predicted video and predicted states. The executed utility \(\utility_i\) is measured only after applying \(a_{1:T}\) to the real dynamics.
+
+For a sample budget \(N\), a selector draws \(N\) candidates from a finite candidate distribution and executes the action sequence attached to the candidate with maximum internal score. We ask whether increasing \(N\) improves the selected executed utility \(U_N = \mathbb{E}[\utility_{\selected(N)}]\). The answer can be negative when the scorer is aligned with visual plausibility but anti-aligned with action-conditioned correctness in the selected tail.
+
+\paragraph{Evaluation principle.}
+The selected generated future is never treated as ground truth. Every experimental row records both predicted utility and real utility. Predicted utility is computed from the generated states and is useful for diagnosing why a candidate looked attractive. Real utility is computed from the executed states and is the outcome used for claims.
+
+\section{Controlled Video World}
+
+The environment is deterministic and intentionally small. The grid has size \(8\), horizon \(T=11\), and frames of size \(32 \times 32 \times 3\). The agent starts at \((1,4)\) and the goal is at \((6,4)\). A vertical wall at \(x=3\) blocks rows \(1\) through \(6\) except for a door at \(y=1\). The valid solution detours upward through the door. The visually direct solution moves right through the wall. An occluder covers columns \(3\) and \(4\) across the middle rows, which makes the invalid crossing visually easy to miss.
+
+Candidate pools contain several trap types. \emph{Valid detour} candidates follow the transition function. \emph{Ghost wall} and \emph{occlusion skip} candidates roll out the same direct actions while ignoring the wall in the predicted video. \emph{Temporal causal} candidates shift motion relative to the action sequence. \emph{Near miss} and \emph{random} candidates provide lower-scoring but often action-valid alternatives. The trap mixture is fixed in code, and all reported results are generated from the scripts in \resultfile{experiments/}.
+
+The real utility is
+\begin{equation}
+  u(x_{0:T},a_{1:T}) =
+  3\mathbf{1}\{d_T=0\} - 0.35 d_T - 0.02T - 0.05 B,
+  \label{eq:utility}
+\end{equation}
+where \(d_T\) is the final Manhattan distance to the goal and \(B\) is the number of non-stay actions blocked by the real transition. This utility is deliberately simple: it rewards reaching the goal, rewards progress, and mildly penalizes blocked actions.
+
+\section{Best-of-N Law}
+
+The selected-tail effect can be measured exactly for a fixed finite candidate pool. Suppose a pool has \(M\) items with scores \(\score_i\) and executed utilities \(\utility_i\). A \bon{} selector samples \(N\) items with replacement, selects the maximum observed score, and breaks score ties uniformly among the tied sampled items. Sort the pool by increasing score and group equal scores. For a tie group \(g\), let \(r_{\min}(g)\) and \(r_{\max}(g)\) be its one-indexed rank range in the sorted pool, and let \(\bar{u}_g\) be the mean executed utility in that group. Then
+\begin{equation}
+  \mathbb{E}[\utility_{\selected(N)}]
+  =
+  \sum_g
+  \bar{u}_g
+  \left[
+    \left(\frac{r_{\max}(g)}{M}\right)^N
+    -
+    \left(\frac{r_{\min}(g)-1}{M}\right)^N
+  \right].
+  \label{eq:finite-law}
+\end{equation}
+
+The proof is one line: group \(g\) is selected exactly when all \(N\) sampled scores are at or below the group and at least one sampled score is in the group; conditional on that event, uniform tie-breaking gives the group mean utility by exchangeability. The implementation in \resultfile{src/video_transformer_best_of_n/theory.py} validates this expression against brute-force enumeration and Monte Carlo sampling. In \resultfile{results/exact_law_validation.json}, the maximum absolute Monte Carlo discrepancy is \(0.0057\), and the tied-pair rate is \(0.190\).
+
+\section{Diagnostics and Repair Gates}
+
+The diagnostics are designed for action-conditioned videos rather than standalone frame quality:
+\begin{itemize}
+  \item \textbf{Action consistency}: replay the selected action sequence under the real transition and mark each predicted transition that is unreachable or wall-penetrating.
+  \item \textbf{Temporal causality}: mark motion greater than one grid cell per step or motion during a stay action.
+  \item \textbf{Occlusion uncertainty}: measure the fraction of predicted states near the hidden crossing region.
+  \item \textbf{Frame-state agreement}: estimate the blue agent position from each frame and compare it to the predicted state.
+\end{itemize}
+
+The repair ladder is intentionally small. It starts with raw visual selection, then evaluates filters based on action consistency, temporal causality, occlusion uncertainty, frame-state agreement, and finally a calibration selector trained on a held-out pilot set of executed labels. The deployment gate emits exactly one of five labels: allow high \(N\), stop early, collect pilot labels, require an action-consistency check, or block high \(N\). In the diagnostic run, the labels are one require-check label at \(N=1\) and block-high-\(N\) labels for \(N \geq 2\), as recorded in \resultfile{results/experiment_video_diagnostics.json}.
+
+\section{Experiments}
+
+\paragraph{Protocol.}
+All experiments sweep \(N \in \nset\). The primary failure run uses \(45\) trials per \(N\); the repair run uses \(32\) trials per \(N\) and a \(36\)-example pilot calibration set; the multi-seed check repeats the key failure and repair metrics across seeds \(120,221,322\). We report the generated artifacts rather than hidden post-processing: main tables come from \resultfile{results/tables/experiment_video_best_of_n_failure.csv} and \resultfile{results/tables/experiment_video_repairs.csv}.
+
+\paragraph{High-\(N\) visual selection selects the wrong tail.}
+Table~\ref{tab:failure} shows the core pattern. As \(N\) increases from \(1\) to \(64\), the selected visual plausibility increases from \(0.907\) to \(0.980\), while executed utility decreases from \(-0.296\) to \(-1.820\). The action-consistency violation rate doubles from \(0.453\) to \(0.909\). At \(N=64\), selected candidates are dominated by ghost-wall and occlusion-skip traps.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Raw visual \bon{} selection in the controlled video world. Values are means from \resultfile{results/tables/experiment_video_best_of_n_failure.csv}. The selected videos become more plausible and goal-like while the selected action sequences execute worse.}
+  \label{tab:failure}
+  \begin{tabular}{@{}rrrrrrr@{}}
+    \toprule
+    \(N\) & visual & predicted \(u\) & real \(u\) & action viol. & ghost wall & occ. skip \\
+    \midrule
+     1 & 0.907 & 1.856 & -0.296 & 0.453 & 0.222 & 0.178 \\
+     2 & 0.938 & 2.327 & -0.900 & 0.673 & 0.400 & 0.267 \\
+     4 & 0.967 & 2.598 & -1.411 & 0.828 & 0.533 & 0.378 \\
+     8 & 0.980 & 2.580 & -1.820 & 0.909 & 0.467 & 0.533 \\
+    16 & 0.980 & 2.580 & -1.820 & 0.909 & 0.622 & 0.378 \\
+    32 & 0.980 & 2.580 & -1.820 & 0.909 & 0.578 & 0.422 \\
+    64 & 0.980 & 2.580 & -1.820 & 0.909 & 0.622 & 0.378 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The high-\(N\) deltas are supported in two ways. The single full run records visual plausibility \(+0.072\), action-violation rate \(+0.457\), and real utility \(-1.524\) from low to high \(N\). The three-seed check records mean deltas \(+0.078\), \(+0.528\), and \(-1.897\), respectively, with all three seeds showing the same sign pattern in \resultfile{results/multiseed_strong_evidence.json}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.97\linewidth]{figure_failure_metrics.png}
+  \caption{Failure metrics from \resultfile{results/experiment_video_best_of_n_failure.json}. Higher \(N\) improves the internal visual selection score while increasing action inconsistency and reducing real executed utility.}
+  \label{fig:failure-metrics}
+\end{figure}
+
+\paragraph{Diagnostics and repair gates recover utility in this scaffold.}
+Table~\ref{tab:repair} compares the repair ladder at \(N=64\). Raw visual selection obtains real utility \(-1.82\). Action-consistency filtering, temporal filtering, frame-state filtering, occlusion filtering, and calibrated repair all select valid detours at high \(N\), giving real utility \(2.78\) in this controlled environment. The calibrated repair closes the oracle gap at \(N=64\) for this scaffold, but we do not claim that the same gate would transfer without new held-out execution labels.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{\(N=64\) repair comparison from \resultfile{results/tables/experiment_video_repairs.csv}. The repairs are scoped filters and pilot-calibrated selectors, not a universal safety guarantee.}
+  \label{tab:repair}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    selector & real \(u\) & predicted \(u\) & visual & action viol. \\
+    \midrule
+    random & -0.382 & 1.680 & 0.907 & 0.435 \\
+    raw visual & -1.820 & 2.580 & 0.980 & 0.909 \\
+    action check & 2.780 & 2.780 & 0.833 & 0.000 \\
+    temporal filter & 2.780 & 2.780 & 0.833 & 0.000 \\
+    occlusion filter & 2.780 & 2.780 & 0.833 & 0.000 \\
+    frame-state filter & 2.780 & 2.780 & 0.833 & 0.000 \\
+    calibrated repair & 2.780 & 2.780 & 0.833 & 0.000 \\
+    oracle & 2.780 & 2.780 & 0.833 & 0.000 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\linewidth]{figure2_repair_ladder.png}
+  \caption{Repair ladder from \resultfile{results/experiment_video_repairs.json}. In this controlled world, video-specific filters trade a lower visual plausibility score for substantially higher executed utility.}
+  \label{fig:repair}
+\end{figure}
+
+\paragraph{Occlusion stress exposes uncertainty, not a separate utility trend.}
+The occlusion stress experiment widens the hidden region from one column to four columns. At \(N=64\), occlusion uncertainty rises from \(0.25\) in the thin setting to \(1.00\) in the wide setting. The real utility remains \(-1.82\) across the three stress regimes because all regimes select the same direct invalid action family at high \(N\). The useful signal is therefore not a new utility slope but a warning that the selected future traverses hidden state.
+
+\paragraph{The tiny learned-video artifact is a smoke-scale component.}
+The repository also trains a compact CPU-feasible transformer over \(16 \times 16\) video patches. The checkpoint \resultfile{results/learned_tiny_video_transformer.pt} is used as a smoke-scale learned video component, not as evidence of a competitive video model. The training run decreases reconstruction loss and records the artifact in \resultfile{results/experiment_learned_video_transformer.json}.
+
+\section{Limitations}
+
+This paper is deliberately scoped. The environment is synthetic, low resolution, deterministic, and designed to make action inconsistency inspectable. The learned transformer is tiny and CPU-trained. The repair ladder uses diagnostics available in this environment and would need new calibration labels before being used elsewhere. We do not evaluate physical robots, broad video benchmarks, or arbitrary world-model planners. The supported claim is narrower: in a controlled action-conditioned video world, high-\(N\) visual selection can move probability mass toward plausible but action-invalid futures, and counterfactual execution plus finite-pool accounting makes that failure measurable.
+
+\bibliographystyle{iclr2026_conference}
+\bibliography{references}
+
+\appendix
+
+\section{Environment Details}
+\label{app:environment}
+
+The default environment is \resultfile{src/video_transformer_best_of_n/envs.py}. Actions are stay, up, down, left, and right. The real transition clips out-of-bounds moves and blocks wall cells. Predicted trap rollouts are generated by \resultfile{src/video_transformer_best_of_n/candidates.py}. The direct-wall action sequence is right, right, right, right, right, followed by stays. The valid-detour sequence moves upward to the door, crosses right, and moves down to the goal.
+
+Frames are rendered from states rather than learned pixels. The wall is dark, the goal is green, the agent is blue, and the occluder blends the hidden crossing columns with grey. This rendering choice makes the selected generated future inspectable and makes frame-state diagnostics deterministic.
+
+\section{Scorer Formulas}
+\label{app:scorers}
+
+The internal score is implemented in \resultfile{src/video_transformer_best_of_n/scorers.py}. Let \(G\) be goal-frame similarity, \(T\) temporal smoothness, \(V\) visual plausibility, and \(L\) the learned-video proxy. The combined score is
+\begin{equation}
+  C = 0.34V + 0.18T + 0.38G + 0.10L.
+\end{equation}
+Goal-frame similarity is \(G=1-\min(1,d/(2(g-1)))\), where \(d\) is final Manhattan distance to the goal on a grid of size \(g\). Temporal smoothness penalizes jerk and overspeed:
+\begin{equation}
+  T = \mathrm{clip}(1 - 0.35\,\mathrm{jerk} - 0.50\,\mathrm{overspeed},0,1).
+\end{equation}
+Visual plausibility combines smoothness, path directness, and low flicker:
+\begin{equation}
+  V = \mathrm{clip}(0.55T + 0.30D + 0.15F,0,1).
+\end{equation}
+The learned-video proxy is a lightweight frame-delta score with a color-range term. These are intentionally simple internal scores; the executed utility in Equation~\ref{eq:utility} is the quantity used for outcome claims.
+
+\section{Gate Policy}
+\label{app:gate}
+
+The deployment gate is implemented in \resultfile{src/video_transformer_best_of_n/gate.py}. It returns exactly one label from the allowed set in \resultfile{src/video_transformer_best_of_n/config.py}. The highest-priority rule blocks high \(N\) when action-consistency violation or frame-state error is at least \(0.55\). It requires an action-consistency check when action violation is at least \(0.18\), stops early for temporal-causal violation at least \(0.18\), asks for pilot labels at high \(N\) with too few labels, and asks for pilot labels for uncertain high-\(N\) occlusions when calibration error remains high.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figure3_video_diagnostics.png}
+  \caption{Diagnostic traces from \resultfile{results/experiment_video_diagnostics.json}. The gate emits one allowed label per \(N\), and high-\(N\) rows are blocked because selected futures are action-inconsistent.}
+  \label{fig:diagnostics}
+\end{figure}
+
+\section{Finite-Law Proof}
+\label{app:proof}
+
+Let \(A_g\) be the event that all \(N\) sampled candidates have score at most group \(g\)'s score and at least one sampled candidate lies in group \(g\). Since sampling is with replacement,
+\[
+  \Pr(A_g)=
+  \left(\frac{r_{\max}(g)}{M}\right)^N
+  -
+  \left(\frac{r_{\min}(g)-1}{M}\right)^N.
+\]
+On \(A_g\), the selected maximum-score group is \(g\). Uniform tie-breaking among sampled candidates with the same maximum score gives each item in the tie group equal expected selection weight by exchangeability, so the conditional expected utility is \(\bar{u}_g\). Summing over disjoint groups yields Equation~\ref{eq:finite-law}. Figure~\ref{fig:law} visualizes the exact law and Monte Carlo check.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figure5_exact_law_validation.png}
+  \caption{Tie-aware finite-law validation from \resultfile{results/exact_law_validation.json}. Exact selected utility and Monte Carlo estimates agree within \(0.0057\) maximum absolute error.}
+  \label{fig:law}
+\end{figure}
+
+\section{Occlusion Stress}
+\label{app:occlusion}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{figure4_occlusion_stress.png}
+  \caption{Occlusion stress from \resultfile{results/experiment_occlusion_stress.json}. Wider occlusion increases uncertainty while high-\(N\) raw visual selection continues to choose the invalid direct action family.}
+  \label{fig:occlusion}
+\end{figure}
+
+Table~\ref{tab:occlusion} reports the \(N=64\) stress rows. The wide hidden region raises uncertainty but does not change the selected real utility in this particular setup.
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{\(N=64\) occlusion stress rows from \resultfile{results/experiment_occlusion_stress.json}.}
+  \label{tab:occlusion}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    regime & uncertainty & visual & action viol. & real \(u\) \\
+    \midrule
+    thin & 0.250 & 0.980 & 0.909 & -1.820 \\
+    standard & 0.333 & 0.980 & 0.909 & -1.820 \\
+    wide & 1.000 & 0.980 & 0.909 & -1.820 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Reproducibility Checklist}
+\label{app:checklist}
+
+\begin{itemize}
+  \item Main commands: \resultfile{bash scripts/run_smoke.sh}, \resultfile{bash scripts/run_all.sh}, \resultfile{bash scripts/run_claim_audit.sh}, and \resultfile{pytest}.
+  \item Paper command: \resultfile{powershell -ExecutionPolicy Bypass -File paper/build_submission.ps1}.
+  \item Primary result files: \resultfile{results/experiment_video_best_of_n_failure.json}, \resultfile{results/experiment_video_repairs.json}, \resultfile{results/experiment_video_diagnostics.json}, \resultfile{results/experiment_occlusion_stress.json}, \resultfile{results/exact_law_validation.json}, and \resultfile{results/multiseed_strong_evidence.json}.
+  \item Claim audit: \resultfile{results/claims_status.json} records supported claims and the public-text block list.
+  \item Anonymity: the submission source uses anonymous ICLR mode and contains no author names, affiliations, acknowledgements, or repository URL.
+\end{itemize}
+
+\end{document}

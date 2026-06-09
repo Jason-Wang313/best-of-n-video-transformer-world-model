@@ -1,0 +1,35 @@
+{
+  "key_result": {
+    "occlusion_uncertainty_slope": 0.75,
+    "wide_minus_thin_real_utility": 0.0
+  },
+  "rows": [
+    {
+      "n64_action_violation": 0.9090909090909093,
+      "n64_occlusion_uncertainty": 0.25,
+      "n64_real_utility": -1.8199999999999998,
+      "n64_visual_plausibility": 0.9795625887757635,
+      "occlusion_cols": "3-3",
+      "regime": "thin"
+    },
+    {
+      "n64_action_violation": 0.9090909090909093,
+      "n64_occlusion_uncertainty": 0.3333333333333334,
+      "n64_real_utility": -1.8199999999999998,
+      "n64_visual_plausibility": 0.9796904297375588,
+      "occlusion_cols": "3-4",
+      "regime": "standard"
+    },
+    {
+      "n64_action_violation": 0.9090909090909093,
+      "n64_occlusion_uncertainty": 1.0,
+      "n64_real_utility": -1.8199999999999998,
+      "n64_visual_plausibility": 0.9799461115738379,
+      "occlusion_cols": "2-5",
+      "regime": "wide"
+    }
+  ],
+  "schema_version": 1,
+  "seed": 26,
+  "smoke": false
+}

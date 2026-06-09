@@ -1,0 +1,45 @@
+{
+  "failure": {
+    "raw_action_violation_delta_high_n_hi": 0.5686086760774289,
+    "raw_action_violation_delta_high_n_lo": 0.48766838019962755,
+    "raw_action_violation_delta_high_n_mean": 0.5281385281385282,
+    "raw_plausibility_delta_high_n_hi": 0.09347884604753817,
+    "raw_plausibility_delta_high_n_lo": 0.06350180311734172,
+    "raw_plausibility_delta_high_n_mean": 0.07849032458243994,
+    "raw_real_utility_delta_high_n_hi": -1.1728808486536662,
+    "raw_real_utility_delta_high_n_lo": -2.6211667703939527,
+    "raw_real_utility_delta_high_n_mean": -1.8970238095238094
+  },
+  "repair": {
+    "calibrated_repair_n64_improvement_over_raw_hi": 4.6,
+    "calibrated_repair_n64_improvement_over_raw_lo": 4.6,
+    "calibrated_repair_n64_improvement_over_raw_mean": 4.6
+  },
+  "rows": [
+    {
+      "calibrated_repair_n64_improvement_over_raw": 4.6,
+      "raw_action_violation_delta_high_n": 0.5454545454545455,
+      "raw_plausibility_delta_high_n": 0.09370487198055455,
+      "raw_real_utility_delta_high_n": -2.6285714285714286,
+      "seed": 120
+    },
+    {
+      "calibrated_repair_n64_improvement_over_raw": 4.6,
+      "raw_action_violation_delta_high_n": 0.5519480519480521,
+      "raw_plausibility_delta_high_n": 0.07223485919042216,
+      "raw_real_utility_delta_high_n": -1.4410714285714283,
+      "seed": 221
+    },
+    {
+      "calibrated_repair_n64_improvement_over_raw": 4.6,
+      "raw_action_violation_delta_high_n": 0.4870129870129872,
+      "raw_plausibility_delta_high_n": 0.06953124257634313,
+      "raw_real_utility_delta_high_n": -1.6214285714285714,
+      "seed": 322
+    }
+  ],
+  "schema_version": 1,
+  "seed": 120,
+  "seed_count": 3,
+  "smoke": false
+}
