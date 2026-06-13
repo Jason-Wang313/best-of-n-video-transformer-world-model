@@ -3,15 +3,15 @@
   "claims": [
     {
       "category": "finite law",
-      "claim": "The tie-aware finite-pool Best-of-N expectation matches brute-force enumeration and Monte Carlo validation within sampling error.",
+      "claim": "The tie-aware finite-pool top-score expectation matches brute-force enumeration and Monte Carlo validation within sampling error.",
       "evidence": "results/exact_law_validation.json; figures/figure5_exact_law_validation.png",
       "evidence_strength": "STRONG",
       "status": "SUPPORTED"
     },
     {
       "category": "video tail failure",
-      "claim": "In the controlled video world, high-scoring selected futures become more visually plausible as N grows while executed action-conditioned utility stagnates or worsens.",
-      "evidence": "results/experiment_video_best_of_n_failure.json; figures/figure1_counterfactual_video_lineup.png",
+      "claim": "In the controlled video world, visually top-ranked futures become more plausible as N grows while executed action-conditioned utility stagnates or worsens.",
+      "evidence": "results/experiment_video_tail_failure.json; figures/figure1_counterfactual_video_lineup.png",
       "evidence_strength": "STRONG",
       "status": "SUPPORTED"
     },
@@ -48,24 +48,24 @@
       "claim": "The repository final audit chooses one allowed readiness status.",
       "evidence": {
         "allowed": [
-          "paper-worthy v1",
+          "submission-ready v2",
           "needs stronger learned model",
           "needs benchmark validation",
           "redesign required"
         ],
-        "status": "paper-worthy v1"
+        "status": "submission-ready v2"
       },
       "evidence_strength": "STRONG",
       "status": "SUPPORTED"
     },
     {
       "category": "forbidden overclaims",
-      "claim": "Universal video, robotics, and blanket Best-of-N overclaims are absent from README, docs, and paper text.",
+      "claim": "Universal video, robotics, and blanket top-score video overclaims are absent from README, docs, and paper text.",
       "evidence": {
         "blocked_phrases": [
           "solves video world modeling",
           "solves robot planning",
-          "Best-of-N always hurts",
+          "top-score selection always hurts",
           "video transformers are bad",
           "action consistency always fixes it",
           "real-robot validation"
@@ -79,7 +79,7 @@
   "forbidden_claims": [
     "solves video world modeling",
     "solves robot planning",
-    "Best-of-N always hurts",
+    "top-score selection always hurts",
     "video transformers are bad",
     "action consistency always fixes it",
     "real-robot validation"

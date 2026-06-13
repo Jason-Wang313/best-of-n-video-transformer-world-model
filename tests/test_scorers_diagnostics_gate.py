@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from video_transformer_best_of_n.candidates import sample_candidate_pool
-from video_transformer_best_of_n.config import GATE_LABELS
-from video_transformer_best_of_n.envs import GridVideoWorld
-from video_transformer_best_of_n.gate import deployment_gate
-from video_transformer_best_of_n.scorers import select_best
+from counterfactual_video_audit.candidates import sample_candidate_pool
+from counterfactual_video_audit.config import GATE_LABELS
+from counterfactual_video_audit.envs import GridVideoWorld
+from counterfactual_video_audit.gate import deployment_gate
+from counterfactual_video_audit.scorers import select_best
 
 
 def test_scorers_and_diagnostics_are_sane():

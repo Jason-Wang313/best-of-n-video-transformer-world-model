@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from video_transformer_best_of_n.candidates import make_candidate
-from video_transformer_best_of_n.envs import GridVideoWorld, direct_wall_actions, valid_detour_actions
+from counterfactual_video_audit.candidates import make_candidate
+from counterfactual_video_audit.envs import GridVideoWorld, direct_wall_actions, valid_detour_actions
 
 
 def test_valid_detour_reaches_goal_and_direct_path_is_blocked():

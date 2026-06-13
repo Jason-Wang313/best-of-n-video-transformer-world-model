@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from video_transformer_best_of_n.claims import find_forbidden_claims
-from video_transformer_best_of_n.config import FINAL_AUDIT_STATUSES
+from counterfactual_video_audit.claims import find_forbidden_claims
+from counterfactual_video_audit.config import FINAL_AUDIT_STATUSES
 
 
 def test_claim_audit_catches_forbidden_claim(tmp_path: Path):
@@ -19,14 +19,14 @@ def test_final_audit_status_is_exactly_one_allowed_label():
     root = Path(__file__).resolve().parents[1]
     text = (root / "docs" / "final_audit.md").read_text(encoding="utf-8")
     matches = [status for status in FINAL_AUDIT_STATUSES if status in text]
-    assert matches == ["paper-worthy v1"]
+    assert matches == ["submission-ready v2"]
 
 
 def test_required_docs_exist():
     root = Path(__file__).resolve().parents[1]
     for rel in [
         "docs/claims.md",
-        "docs/differentiation_from_best_of_n_wam.md",
+        "docs/differentiation_from_wam.md",
         "docs/differentiation_from_prior_projects.md",
         "docs/reviewer_attacks.md",
         "docs/final_audit.md",

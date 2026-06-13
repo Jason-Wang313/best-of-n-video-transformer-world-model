@@ -5,8 +5,8 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 
 from experiments.common import FIGURES, RESULTS, TABLES, write_csv, write_json
-from video_transformer_best_of_n.envs import GridVideoWorld
-from video_transformer_best_of_n.evaluation import evaluate_best_of_n
+from counterfactual_video_audit.envs import GridVideoWorld
+from counterfactual_video_audit.evaluation import evaluate_score_selected
 
 
 def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
@@ -19,7 +19,7 @@ def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
     rows = []
     for idx, (name, cols) in enumerate(regimes.items()):
         world = GridVideoWorld(occlusion_cols=cols)
-        _, summary = evaluate_best_of_n(trials=trials, seed=seed + 100 * idx, world=world)
+        _, summary = evaluate_score_selected(trials=trials, seed=seed + 100 * idx, world=world)
         rows.append(
             {
                 "regime": name,

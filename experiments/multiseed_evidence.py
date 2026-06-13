@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from experiments.common import RESULTS, TABLES, ci95, write_csv, write_json
 from experiments.experiment_video_repairs import run as run_repairs
-from video_transformer_best_of_n.envs import GridVideoWorld
-from video_transformer_best_of_n.evaluation import evaluate_best_of_n, high_minus_low
+from counterfactual_video_audit.envs import GridVideoWorld
+from counterfactual_video_audit.evaluation import evaluate_score_selected, high_minus_low
 
 
 def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
@@ -20,7 +20,7 @@ def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
     repair_improvements = []
     for idx in range(seed_count):
         s = seed + idx * 101
-        _, summary = evaluate_best_of_n(trials=trials, seed=s, world=GridVideoWorld())
+        _, summary = evaluate_score_selected(trials=trials, seed=s, world=GridVideoWorld())
         plaus = high_minus_low(summary, "visual_plausibility")
         action = high_minus_low(summary, "action_consistency_violation_rate")
         utility = high_minus_low(summary, "real_utility")

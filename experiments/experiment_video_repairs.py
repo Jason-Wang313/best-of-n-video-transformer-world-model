@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from experiments.common import FIGURES, RESULTS, TABLES, summary_rows, write_csv, write_json
-from video_transformer_best_of_n.calibration import fit_video_real_calibrator
-from video_transformer_best_of_n.candidates import sample_candidate_pool
-from video_transformer_best_of_n.config import N_VALUES
-from video_transformer_best_of_n.envs import GridVideoWorld
-from video_transformer_best_of_n.evaluation import evaluate_best_of_n
-from video_transformer_best_of_n.scorers import select_best, select_oracle, select_random, select_with_filter
+from counterfactual_video_audit.calibration import fit_video_real_calibrator
+from counterfactual_video_audit.candidates import sample_candidate_pool
+from counterfactual_video_audit.config import N_VALUES
+from counterfactual_video_audit.envs import GridVideoWorld
+from counterfactual_video_audit.evaluation import evaluate_score_selected
+from counterfactual_video_audit.scorers import select_best, select_oracle, select_random, select_with_filter
 
 
 def action_check_selector(pool: list[Any], rng: np.random.Generator) -> Any:
@@ -82,7 +82,7 @@ def run(*, smoke: bool = False, seed: int = 0, write_artifacts: bool = True) -> 
     summaries: dict[str, dict[str, dict[str, float]]] = {}
     all_rows: list[dict[str, object]] = []
     for name, selector in strategies.items():
-        rows, summary = evaluate_best_of_n(selector, trials=trials, seed=seed + 17 * (len(summaries) + 1), world=GridVideoWorld())
+        rows, summary = evaluate_score_selected(selector, trials=trials, seed=seed + 17 * (len(summaries) + 1), world=GridVideoWorld())
         summaries[name] = summary
         for row in rows:
             row = dict(row)

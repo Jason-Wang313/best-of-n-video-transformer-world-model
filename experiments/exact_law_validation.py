@@ -1,4 +1,4 @@
-"""Validate the finite tie-aware Best-of-N law."""
+"""Validate the finite tie-aware top-score selection law."""
 
 from __future__ import annotations
 
@@ -7,14 +7,14 @@ import itertools
 import numpy as np
 
 from experiments.common import FIGURES, RESULTS, TABLES, save_line_plot, write_csv, write_json
-from video_transformer_best_of_n.config import N_VALUES
-from video_transformer_best_of_n.theory import (
+from counterfactual_video_audit.config import N_VALUES
+from counterfactual_video_audit.theory import (
     auc_kappa,
-    binary_best_of_n_finite,
+    binary_score_selected_finite,
     n2_auc_identity,
-    simulate_best_of_n,
+    simulate_score_selected,
     tie_rate,
-    utility_best_of_n_finite,
+    utility_score_selected_finite,
 )
 
 
@@ -35,21 +35,21 @@ def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
     scores = np.asarray([-1.0, -0.2, -0.2, 0.5, 0.5, 0.5, 1.0], dtype=float)
     utilities = np.asarray([-0.5, 0.2, 0.6, 1.1, -0.8, 0.4, -1.2], dtype=float)
     n_values = N_VALUES
-    exact = utility_best_of_n_finite(scores, utilities, n_values)
+    exact = utility_score_selected_finite(scores, utilities, n_values)
     mc_trials = 5_000 if smoke else 25_000
     rows = []
     max_abs_error = 0.0
     for N in n_values:
-        mc = simulate_best_of_n(scores, utilities, N, n_trials=mc_trials, seed=seed + N)
+        mc = simulate_score_selected(scores, utilities, N, n_trials=mc_trials, seed=seed + N)
         error = abs(exact[N] - mc)
         max_abs_error = max(max_abs_error, error)
         rows.append({"N": N, "exact": exact[N], "monte_carlo": mc, "abs_error": error})
 
     brute = {N: brute_force(scores, utilities, N) for N in (1, 2, 3)}
-    oracle = utility_best_of_n_finite(utilities, utilities, n_values)
-    anti = utility_best_of_n_finite(-utilities, utilities, n_values)
+    oracle = utility_score_selected_finite(utilities, utilities, n_values)
+    anti = utility_score_selected_finite(-utilities, utilities, n_values)
     success = np.asarray([0, 1, 1, 1, 0, 1, 0], dtype=float)
-    binary = binary_best_of_n_finite(scores, success, [1, 2])
+    binary = binary_score_selected_finite(scores, success, [1, 2])
     identity = n2_auc_identity(float(success.mean()), auc_kappa(scores, success))
 
     x = list(n_values)
@@ -62,7 +62,7 @@ def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
             "oracle score": [oracle[N] for N in x],
             "anti-aligned score": [anti[N] for N in x],
         },
-        title="Tie-aware finite Best-of-N law",
+        title="Tie-aware finite-pool selection law",
         ylabel="Expected selected utility",
     )
     write_csv(TABLES / "exact_law_validation.csv", rows)

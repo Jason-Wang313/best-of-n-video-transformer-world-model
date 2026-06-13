@@ -1,4 +1,4 @@
-"""Shared constants for the video Best-of-N scaffold."""
+"""Shared constants for the counterfactual video audit."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ GATE_LABELS = (
 )
 
 FINAL_AUDIT_STATUSES = (
-    "paper-worthy v1",
+    "submission-ready v2",
     "needs stronger learned model",
     "needs benchmark validation",
     "redesign required",

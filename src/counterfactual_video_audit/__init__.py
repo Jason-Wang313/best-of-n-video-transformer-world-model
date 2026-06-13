@@ -1,10 +1,10 @@
-"""Controlled video Best-of-N experiments.
+"""Controlled counterfactual video audit experiments.
 
 The package is intentionally small and deterministic. It supports a low-res
 video world where visually plausible generated futures can be action-invalid,
-plus diagnostics, repair gates, and an exact finite Best-of-N law.
+plus diagnostics, repair gates, and an exact finite-pool selection law.
 """
 
-from video_transformer_best_of_n.config import GATE_LABELS, N_VALUES
+from counterfactual_video_audit.config import GATE_LABELS, N_VALUES
 
 __all__ = ["GATE_LABELS", "N_VALUES"]

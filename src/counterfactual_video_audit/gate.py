@@ -1,8 +1,8 @@
-"""Deployment gate for high-N video selection."""
+"""Deployment gate for large-candidate-count video selection."""
 
 from __future__ import annotations
 
-from video_transformer_best_of_n.config import GATE_LABELS
+from counterfactual_video_audit.config import GATE_LABELS
 
 
 def deployment_gate(
@@ -15,7 +15,7 @@ def deployment_gate(
     pilot_label_count: int,
     calibration_mae: float | None = None,
 ) -> str:
-    """Return exactly one scoped high-N deployment label."""
+    """Return exactly one scoped large-candidate-count deployment label."""
 
     n = int(n)
     if action_violation_rate >= 0.55 or frame_to_state_consistency_error >= 0.55:

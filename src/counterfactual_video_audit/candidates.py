@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from video_transformer_best_of_n.envs import (
+from counterfactual_video_audit.envs import (
     DOWN,
     RIGHT,
     STAY,
@@ -94,8 +94,8 @@ def actions_for_type(world: GridVideoWorld, trap_type: str, rng: np.random.Gener
 
 
 def make_candidate(world: GridVideoWorld, trap_type: str, actions: np.ndarray) -> VideoCandidate:
-    from video_transformer_best_of_n.diagnostics import candidate_diagnostics
-    from video_transformer_best_of_n.scorers import score_candidate
+    from counterfactual_video_audit.diagnostics import candidate_diagnostics
+    from counterfactual_video_audit.scorers import score_candidate
 
     actions = np.asarray(actions, dtype=int)
     key = (_world_cache_key(world), str(trap_type), tuple(int(a) for a in actions))

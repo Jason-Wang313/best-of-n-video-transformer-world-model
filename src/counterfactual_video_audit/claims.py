@@ -1,4 +1,4 @@
-"""Claim audit for the scoped video Best-of-N scaffold."""
+"""Claim audit for the scoped counterfactual video audit."""
 
 from __future__ import annotations
 
@@ -6,12 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from video_transformer_best_of_n.config import FINAL_AUDIT_STATUSES, GATE_LABELS
+from counterfactual_video_audit.config import FINAL_AUDIT_STATUSES, GATE_LABELS
 
 FORBIDDEN_CLAIMS = [
     "solves video world modeling",
     "solves robot planning",
-    "Best-of-N always hurts",
+    "top-score selection always hurts",
     "video transformers are bad",
     "action consistency always fixes it",
     "real-robot validation",
@@ -62,7 +62,7 @@ def _final_audit_status(root: Path) -> str | None:
 def build_claim_status(root: Path) -> dict[str, Any]:
     results = root / "results"
     exact = _load(results / "exact_law_validation.json")
-    failure = _load(results / "experiment_video_best_of_n_failure.json")
+    failure = _load(results / "experiment_video_tail_failure.json")
     repairs = _load(results / "experiment_video_repairs.json")
     diagnostics = _load(results / "experiment_video_diagnostics.json")
     learned = _load(results / "experiment_learned_video_transformer.json")
@@ -77,7 +77,7 @@ def build_claim_status(root: Path) -> dict[str, Any]:
     claims.append(
         {
             "category": "finite law",
-            "claim": "The tie-aware finite-pool Best-of-N expectation matches brute-force enumeration and Monte Carlo validation within sampling error.",
+            "claim": "The tie-aware finite-pool top-score expectation matches brute-force enumeration and Monte Carlo validation within sampling error.",
             "status": _status(exact_ok),
             "evidence_strength": "STRONG" if exact_ok else "WEAK",
             "evidence": "results/exact_law_validation.json; figures/figure5_exact_law_validation.png",
@@ -102,10 +102,10 @@ def build_claim_status(root: Path) -> dict[str, Any]:
     claims.append(
         {
             "category": "video tail failure",
-            "claim": "In the controlled video world, high-scoring selected futures become more visually plausible as N grows while executed action-conditioned utility stagnates or worsens.",
+            "claim": "In the controlled video world, visually top-ranked futures become more plausible as N grows while executed action-conditioned utility stagnates or worsens.",
             "status": _status(failure_strong if full_multiseed else failure_single, partial=bool(failure)),
             "evidence_strength": "STRONG" if failure_strong else ("SMOKE" if failure_single else "WEAK"),
-            "evidence": "results/experiment_video_best_of_n_failure.json; figures/figure1_counterfactual_video_lineup.png",
+            "evidence": "results/experiment_video_tail_failure.json; figures/figure1_counterfactual_video_lineup.png",
         }
     )
 
@@ -180,7 +180,7 @@ def build_claim_status(root: Path) -> dict[str, Any]:
     claims.append(
         {
             "category": "forbidden overclaims",
-            "claim": "Universal video, robotics, and blanket Best-of-N overclaims are absent from README, docs, and paper text.",
+            "claim": "Universal video, robotics, and blanket top-score video overclaims are absent from README, docs, and paper text.",
             "status": "SUPPORTED" if not forbidden_hits else "UNSUPPORTED",
             "evidence_strength": "STRONG" if not forbidden_hits else "WEAK",
             "evidence": {"hits": forbidden_hits, "blocked_phrases": FORBIDDEN_CLAIMS},

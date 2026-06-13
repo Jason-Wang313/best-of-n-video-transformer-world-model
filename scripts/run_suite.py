@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+for path in (ROOT, ROOT / "src"):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from experiments.exact_law_validation import run as run_exact
 from experiments.experiment_learned_video_transformer import run as run_learned
 from experiments.experiment_occlusion_stress import run as run_occlusion
-from experiments.experiment_video_best_of_n_failure import run as run_failure
+from experiments.experiment_video_tail_failure import run as run_failure
 from experiments.experiment_video_diagnostics import run as run_diagnostics
 from experiments.experiment_video_repairs import run as run_repairs
 from experiments.multiseed_evidence import run as run_multiseed
@@ -26,7 +33,7 @@ def main() -> None:
             lambda: run_learned(smoke=args.smoke, seed=args.seed_base + 2),
         ),
         (
-            "experiments/experiment_video_best_of_n_failure.py",
+            "experiments/experiment_video_tail_failure.py",
             lambda: run_failure(smoke=args.smoke, seed=args.seed_base + 3),
         ),
         ("experiments/experiment_video_repairs.py", lambda: run_repairs(smoke=args.smoke, seed=args.seed_base + 4)),

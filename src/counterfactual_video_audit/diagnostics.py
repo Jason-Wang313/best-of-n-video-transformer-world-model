@@ -6,7 +6,7 @@ from typing import Any
 
 import numpy as np
 
-from video_transformer_best_of_n.envs import STAY, GridVideoWorld, State
+from counterfactual_video_audit.envs import STAY, GridVideoWorld, State
 
 
 def action_consistency_violations(world: GridVideoWorld, states: list[State], actions: np.ndarray) -> np.ndarray:

@@ -5,6 +5,8 @@ $RepoRoot = Split-Path -Parent $PaperDir
 $OutName = "when_plausible_videos_lie_iclr_submission.pdf"
 $LocalOut = Join-Path $PaperDir $OutName
 $DownloadsOut = Join-Path (Join-Path $env:USERPROFILE "Downloads") $OutName
+$DesktopDir = Join-Path $env:USERPROFILE "OneDrive\Desktop"
+$DesktopOut = Join-Path $DesktopDir "best of n video transformer world model-v2.pdf"
 
 Push-Location $PaperDir
 try {
@@ -34,8 +36,11 @@ try {
 
     Copy-Item -LiteralPath "main.pdf" -Destination $LocalOut -Force
     Copy-Item -LiteralPath "main.pdf" -Destination $DownloadsOut -Force
+    New-Item -ItemType Directory -Force $DesktopDir | Out-Null
+    Copy-Item -LiteralPath "main.pdf" -Destination $DesktopOut -Force
     Write-Host "Built $LocalOut"
     Write-Host "Copied $DownloadsOut"
+    Write-Host "Copied $DesktopOut"
 } finally {
     Pop-Location
 }

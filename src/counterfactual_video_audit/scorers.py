@@ -1,4 +1,4 @@
-"""Internal video scores and Best-of-N selectors."""
+"""Internal video scores and top-score selectors."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any, Callable
 
 import numpy as np
 
-from video_transformer_best_of_n.envs import GridVideoWorld
+from counterfactual_video_audit.envs import GridVideoWorld
 
 
 def _state_path_length(states: list[Any]) -> float:

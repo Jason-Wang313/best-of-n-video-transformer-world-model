@@ -19,6 +19,8 @@ cp main.pdf "$OUT_NAME"
 
 if [[ -n "${USERPROFILE:-}" ]]; then
   cp main.pdf "$USERPROFILE/Downloads/$OUT_NAME"
+  mkdir -p "$USERPROFILE/OneDrive/Desktop"
+  cp main.pdf "$USERPROFILE/OneDrive/Desktop/best of n video transformer world model-v2.pdf"
 elif [[ -n "${HOME:-}" ]]; then
   cp main.pdf "$HOME/Downloads/$OUT_NAME"
 fi

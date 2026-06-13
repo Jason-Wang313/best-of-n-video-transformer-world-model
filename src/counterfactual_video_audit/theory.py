@@ -1,4 +1,4 @@
-"""Exact finite tie-aware Best-of-N law for score/utility pools."""
+"""Exact finite tie-aware selection law for score/utility pools."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def sorted_tie_groups(scores: Iterable[float]) -> tuple[np.ndarray, list[TieGrou
     return order, groups
 
 
-def utility_best_of_n_finite(
+def utility_score_selected_finite(
     scores: Iterable[float],
     utilities: Iterable[float],
     n_values: Iterable[int],
@@ -89,7 +89,7 @@ def utility_best_of_n_finite(
     return out
 
 
-def binary_best_of_n_finite(
+def binary_score_selected_finite(
     scores: Iterable[float],
     success: Iterable[bool | int | float],
     n_values: Iterable[int],
@@ -97,7 +97,7 @@ def binary_best_of_n_finite(
     success_arr = _as_1d_float(success, "success")
     if not np.all((success_arr == 0.0) | (success_arr == 1.0)):
         raise ValueError("success must be binary")
-    return utility_best_of_n_finite(scores, success_arr, n_values)
+    return utility_score_selected_finite(scores, success_arr, n_values)
 
 
 def auc_kappa(scores: Iterable[float], success: Iterable[bool | int | float]) -> float:
@@ -138,7 +138,7 @@ def tie_rate(scores: Iterable[float]) -> float:
     return float(tied_pairs / (n * (n - 1) / 2))
 
 
-def simulate_best_of_n(
+def simulate_score_selected(
     scores: Iterable[float],
     utilities: Iterable[float],
     N: int,

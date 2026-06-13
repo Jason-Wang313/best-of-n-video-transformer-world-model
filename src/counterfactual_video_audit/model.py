@@ -14,8 +14,8 @@ except Exception:  # pragma: no cover - tests skip model training if torch is ab
     torch = None
     nn = None
 
-from video_transformer_best_of_n.candidates import actions_for_type, make_candidate
-from video_transformer_best_of_n.envs import GridVideoWorld, random_actions, valid_detour_actions
+from counterfactual_video_audit.candidates import actions_for_type, make_candidate
+from counterfactual_video_audit.envs import GridVideoWorld, random_actions, valid_detour_actions
 
 
 def _require_torch() -> Any:

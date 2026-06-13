@@ -4,12 +4,12 @@ import itertools
 
 import numpy as np
 
-from video_transformer_best_of_n.theory import (
+from counterfactual_video_audit.theory import (
     auc_kappa,
-    binary_best_of_n_finite,
+    binary_score_selected_finite,
     n2_auc_identity,
-    simulate_best_of_n,
-    utility_best_of_n_finite,
+    simulate_score_selected,
+    utility_score_selected_finite,
 )
 
 
@@ -30,7 +30,7 @@ def brute_force(scores, utility, N):
 def test_finite_law_matches_bruteforce_with_ties():
     scores = [0.0, 1.0, 1.0, 2.0]
     utility = [0.0, 1.0, 3.0, -2.0]
-    exact = utility_best_of_n_finite(scores, utility, [1, 2, 3])
+    exact = utility_score_selected_finite(scores, utility, [1, 2, 3])
     assert exact[1] == np.mean(utility)
     assert np.isclose(exact[2], brute_force(scores, utility, 2))
     assert np.isclose(exact[3], brute_force(scores, utility, 3))
@@ -39,18 +39,18 @@ def test_finite_law_matches_bruteforce_with_ties():
 def test_binary_law_auc_identity_and_edges():
     scores = np.array([0.0, 1.0, 1.0, 2.0, 3.0])
     success = np.array([0.0, 0.0, 1.0, 1.0, 1.0])
-    curve = binary_best_of_n_finite(scores, success, [1, 2])
+    curve = binary_score_selected_finite(scores, success, [1, 2])
     assert np.isclose(curve[1], np.mean(success))
     assert np.isclose(curve[2], n2_auc_identity(np.mean(success), auc_kappa(scores, success)))
-    assert binary_best_of_n_finite(scores, np.ones_like(scores), [1, 64])[64] == 1.0
-    assert binary_best_of_n_finite(scores, np.zeros_like(scores), [1, 64])[64] == 0.0
+    assert binary_score_selected_finite(scores, np.ones_like(scores), [1, 64])[64] == 1.0
+    assert binary_score_selected_finite(scores, np.zeros_like(scores), [1, 64])[64] == 0.0
 
 
 def test_oracle_anti_aligned_and_constant_cases():
     utility = np.linspace(-1.0, 2.0, 8)
-    oracle = utility_best_of_n_finite(utility, utility, [1, 2, 8])
-    anti = utility_best_of_n_finite(-utility, utility, [1, 2, 8])
-    const = utility_best_of_n_finite(utility, np.ones_like(utility) * 4.2, [1, 8])
+    oracle = utility_score_selected_finite(utility, utility, [1, 2, 8])
+    anti = utility_score_selected_finite(-utility, utility, [1, 2, 8])
+    const = utility_score_selected_finite(utility, np.ones_like(utility) * 4.2, [1, 8])
     assert oracle[8] > oracle[1]
     assert anti[8] < anti[1]
     assert const == {1: 4.2, 8: 4.2}
@@ -60,6 +60,6 @@ def test_monte_carlo_agrees_with_exact_law():
     rng = np.random.default_rng(7)
     utility = rng.normal(scale=0.5, size=80)
     scores = np.round(utility + rng.normal(scale=0.2, size=80), 1)
-    exact = utility_best_of_n_finite(scores, utility, [8])[8]
-    mc = simulate_best_of_n(scores, utility, 8, n_trials=12000, seed=9)
+    exact = utility_score_selected_finite(scores, utility, [8])[8]
+    mc = simulate_score_selected(scores, utility, 8, n_trials=12000, seed=9)
     assert abs(exact - mc) < 0.06

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from experiments.common import RESULTS, write_json
-from video_transformer_best_of_n.model import train_tiny_video_transformer
+from counterfactual_video_audit.model import train_tiny_video_transformer
 
 
 def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:

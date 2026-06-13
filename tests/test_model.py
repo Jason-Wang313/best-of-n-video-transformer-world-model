@@ -9,7 +9,7 @@ import pytest
 def test_tiny_video_transformer_forward_shape():
     import torch
 
-    from video_transformer_best_of_n.model import TinyVideoTransformer
+    from counterfactual_video_audit.model import TinyVideoTransformer
 
     model = TinyVideoTransformer(frame_size=16, patch_size=4, max_frames=12)
     video = torch.zeros(2, 4, 3, 16, 16)

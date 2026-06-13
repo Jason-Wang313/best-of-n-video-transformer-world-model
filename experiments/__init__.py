@@ -1,1 +1,1 @@
-"""Experiment entry points for the video Best-of-N scaffold."""
+"""Experiment entry points for the counterfactual video audit."""

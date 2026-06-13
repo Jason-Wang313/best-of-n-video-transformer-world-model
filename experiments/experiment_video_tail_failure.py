@@ -1,4 +1,4 @@
-"""Raw Best-of-N failure in the controlled video world."""
+"""Raw visual-tail failure in the controlled video world."""
 
 from __future__ import annotations
 
@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from experiments.common import FIGURES, RESULTS, TABLES, summary_rows, write_csv, write_json
-from video_transformer_best_of_n.candidates import candidate_validity_overlay, sample_candidate_pool
-from video_transformer_best_of_n.config import N_VALUES
-from video_transformer_best_of_n.envs import GridVideoWorld
-from video_transformer_best_of_n.evaluation import evaluate_best_of_n, high_minus_low
-from video_transformer_best_of_n.scorers import select_best
+from counterfactual_video_audit.candidates import candidate_validity_overlay, sample_candidate_pool
+from counterfactual_video_audit.config import N_VALUES
+from counterfactual_video_audit.envs import GridVideoWorld
+from counterfactual_video_audit.evaluation import evaluate_score_selected, high_minus_low
+from counterfactual_video_audit.scorers import select_best
 
 
 def make_counterfactual_lineup(seed: int) -> None:
@@ -48,7 +48,7 @@ def make_counterfactual_lineup(seed: int) -> None:
 
 def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
     trials = 8 if smoke else 45
-    rows, summary = evaluate_best_of_n(trials=trials, seed=seed, world=GridVideoWorld())
+    rows, summary = evaluate_score_selected(trials=trials, seed=seed, world=GridVideoWorld())
     x = list(N_VALUES)
     fig, ax1 = plt.subplots(figsize=(6.8, 4.2), dpi=150)
     ax1.plot(x, [summary[str(N)]["visual_plausibility"] for N in x], marker="o", label="visual plausibility")
@@ -65,15 +65,15 @@ def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines + lines2, labels + labels2, frameon=False, loc="best")
     ax1.grid(True, alpha=0.25)
-    fig.suptitle("Raw visual Best-of-N selects action-invalid tails")
+    fig.suptitle("Raw visual top-score selection picks action-invalid tails")
     fig.tight_layout()
     fig.savefig(FIGURES / "figure_failure_metrics.png")
     plt.close(fig)
     make_counterfactual_lineup(seed + 1000)
 
     table_rows = summary_rows(summary)
-    write_csv(TABLES / "experiment_video_best_of_n_failure.csv", table_rows)
-    write_csv(TABLES / "experiment_video_best_of_n_failure_trials.csv", rows)
+    write_csv(TABLES / "experiment_video_tail_failure.csv", table_rows)
+    write_csv(TABLES / "experiment_video_tail_failure_trials.csv", rows)
     key_result = {
         "raw_plausibility_delta_high_n": high_minus_low(summary, "visual_plausibility"),
         "raw_action_violation_delta_high_n": high_minus_low(summary, "action_consistency_violation_rate"),
@@ -89,7 +89,7 @@ def run(*, smoke: bool = False, seed: int = 0) -> dict[str, object]:
         "summary_by_n": summary,
         "key_result": key_result,
     }
-    write_json(RESULTS / "experiment_video_best_of_n_failure.json", payload)
+    write_json(RESULTS / "experiment_video_tail_failure.json", payload)
     return payload
 
 

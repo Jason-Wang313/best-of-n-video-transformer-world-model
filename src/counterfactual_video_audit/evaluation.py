@@ -1,4 +1,4 @@
-"""Reusable Best-of-N evaluation helpers."""
+"""Reusable top-score video evaluation helpers."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from typing import Any, Callable
 
 import numpy as np
 
-from video_transformer_best_of_n.candidates import sample_candidate_pool
-from video_transformer_best_of_n.config import N_VALUES
-from video_transformer_best_of_n.envs import GridVideoWorld
-from video_transformer_best_of_n.scorers import select_best
+from counterfactual_video_audit.candidates import sample_candidate_pool
+from counterfactual_video_audit.config import N_VALUES
+from counterfactual_video_audit.envs import GridVideoWorld
+from counterfactual_video_audit.scorers import select_best
 
 
 Selector = Callable[[list[Any], np.random.Generator], Any]
@@ -20,7 +20,7 @@ def raw_selector(pool: list[Any], rng: np.random.Generator) -> Any:
     return select_best(pool)
 
 
-def evaluate_best_of_n(
+def evaluate_score_selected(
     selector: Selector = raw_selector,
     *,
     n_values: tuple[int, ...] = N_VALUES,

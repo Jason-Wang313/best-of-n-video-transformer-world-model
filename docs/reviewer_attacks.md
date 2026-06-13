@@ -12,7 +12,7 @@ Also agreed. The transformer is intentionally CPU-feasible and smoke-scale. The 
 
 The docs should say exactly that. The repair gates are evidence for this controlled setting. External use would require new calibration and held-out execution labels.
 
-## Attack: Raw high-N can help in other settings.
+## Attack: Raw large-candidate-count can help in other settings.
 
 Yes. The claim is existence and measurement of a video-tail failure under controlled conditions, not a universal monotonic law.
 
