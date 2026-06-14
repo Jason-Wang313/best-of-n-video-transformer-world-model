@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,10 @@ FORBIDDEN_CLAIMS = [
     "video transformers are bad",
     "action consistency always fixes it",
     "real-robot validation",
+    "submission-ready v2",
+    "v2 copy",
+    "v2.pdf",
+    "iclr_submission",
 ]
 
 
@@ -59,6 +64,12 @@ def _final_audit_status(root: Path) -> str | None:
     return None
 
 
+def _pdf_pages(path: Path) -> int:
+    if not path.exists():
+        return 0
+    return len(re.findall(rb"/Type\s*/Page\b", path.read_bytes()))
+
+
 def build_claim_status(root: Path) -> dict[str, Any]:
     results = root / "results"
     exact = _load(results / "exact_law_validation.json")
@@ -68,6 +79,8 @@ def build_claim_status(root: Path) -> dict[str, Any]:
     learned = _load(results / "experiment_learned_video_transformer.json")
     occlusion = _load(results / "experiment_occlusion_stress.json")
     multi = _load(results / "multiseed_strong_evidence.json")
+    expansion = _load(results / "expansion" / "claims.json")
+    final_pdf = root / "paper" / "final" / "best of n video transformer world model-v3.pdf"
 
     full_multiseed = bool(multi and not multi.get("smoke"))
     claims: list[dict[str, Any]] = []
@@ -173,6 +186,29 @@ def build_claim_status(root: Path) -> dict[str, Any]:
             "status": _status(final_ok),
             "evidence_strength": "STRONG" if final_ok else "WEAK",
             "evidence": {"status": final_status, "allowed": FINAL_AUDIT_STATUSES},
+        }
+    )
+
+    expansion_ok = bool(expansion and expansion.get("all_passed"))
+    claims.append(
+        {
+            "category": "expanded stress suite",
+            "claim": "The v3 expansion suite passes its generated candidate-count, horizon, occlusion, score-key, and repair claims.",
+            "status": _status(expansion_ok),
+            "evidence_strength": "STRONG" if expansion_ok else "WEAK",
+            "evidence": "results/expansion/claims.json",
+        }
+    )
+
+    pdf_pages = _pdf_pages(final_pdf)
+    pdf_ok = pdf_pages >= 25
+    claims.append(
+        {
+            "category": "final pdf",
+            "claim": "The repository final PDF exists and is at least 25 pages.",
+            "status": _status(pdf_ok),
+            "evidence_strength": "STRONG" if pdf_ok else "WEAK",
+            "evidence": {"path": "paper/final/best of n video transformer world model-v3.pdf", "pages": pdf_pages},
         }
     )
 

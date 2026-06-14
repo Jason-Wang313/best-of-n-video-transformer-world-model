@@ -1,8 +1,8 @@
 # Final Audit
 
-Status: submission-ready v2
+Status: submission-ready v3
 
-Rationale: the repository is complete enough for a scoped controlled-counterexample submission. It has executable experiments, a small learned video artifact, a finite-law validation, counterfactual video figures, scoped repair gates, and a claim audit.
+Rationale: the repository is complete enough for a scoped controlled-counterexample submission after the expanded v3 pass. It has executable experiments, a small learned video artifact, finite-law validation, counterfactual video figures, scoped repair gates, N=256 tail stress tests, horizon and occlusion sweeps, score-key ablations, repair-ladder stress tests, and a claim audit that checks the final PDF page count.
 
 Main limits:
 

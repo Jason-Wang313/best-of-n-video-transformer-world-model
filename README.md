@@ -9,9 +9,10 @@ The central artifact is a counterfactual video lineup: for each `N`, the repo re
 The claims are deliberately narrow:
 
 - Controlled grid-video dynamics with rendered RGB frames.
-- Finite-pool top-score video selection over `N = {1,2,4,8,16,32,64}`.
+- Finite-pool top-score video selection over `N = {1,2,4,8,16,32,64}` plus an expanded `N=256` tail suite.
 - Video-specific diagnostics and repair gates, not a universal safety recipe.
 - A tiny CPU-trained transformer over frame patches, used as a smoke-scale learned video component.
+- Candidate-count, horizon, occlusion-width, score-key, and repair-ladder stress tests.
 - No hardware experiments, no broad robotics claim, and no blanket statement about all video predictors.
 
 ## Run
@@ -19,6 +20,7 @@ The claims are deliberately narrow:
 ```bash
 bash scripts/run_smoke.sh
 bash scripts/run_all.sh
+python -m experiments.experiment_expansion_suite
 bash scripts/run_claim_audit.sh
 pytest
 ```
@@ -41,7 +43,7 @@ or:
 bash paper/build_submission.sh
 ```
 
-The PowerShell build writes `paper/when_plausible_videos_lie_iclr_submission.pdf` and copies the same PDF to `C:\Users\wangz\OneDrive\Desktop\best of n video transformer world model-v2.pdf`.
+The build writes `paper/final/best of n video transformer world model-v3.pdf`. The final Desktop copy is made only after the full verification and audit pass.
 
 ## Main Files
 
@@ -60,7 +62,11 @@ The PowerShell build writes `paper/when_plausible_videos_lie_iclr_submission.pdf
 - `figures/figure3_video_diagnostics.png`
 - `figures/figure4_occlusion_stress.png`
 - `figures/figure5_exact_law_validation.png`
+- `figures/figure6_candidate_count_256.png`
+- `figures/figure7_video_stress_sweeps.png`
+- `figures/figure8_score_key_ablation.png`
+- `figures/figure9_repair_ladder_256.png`
 
 ## Final Audit
 
-The intended readiness label for this scaffold is `submission-ready v2`: it is a scoped controlled-counterexample submission with explicit limits on external validity and benchmark breadth.
+The intended readiness label for this scaffold is `submission-ready v3`: it is a scoped controlled-counterexample submission with expanded stress tests, a 25-page manuscript target, executable claim checks, and explicit limits on external validity and benchmark breadth.

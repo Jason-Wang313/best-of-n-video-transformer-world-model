@@ -13,7 +13,7 @@ GATE_LABELS = (
 )
 
 FINAL_AUDIT_STATUSES = (
-    "submission-ready v2",
+    "submission-ready v3",
     "needs stronger learned model",
     "needs benchmark validation",
     "redesign required",

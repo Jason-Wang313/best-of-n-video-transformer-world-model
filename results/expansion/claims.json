@@ -1,0 +1,60 @@
+{
+  "all_passed": true,
+  "claims": {
+    "action_check_recovers_high_candidate_tail": {
+      "description": "The action-consistency filter improves executed utility at N=256 relative to raw visual selection.",
+      "status": "pass",
+      "threshold": 3.0,
+      "value": 4.6
+    },
+    "calibrated_repair_recovers_high_candidate_tail": {
+      "description": "The calibrated repair improves executed utility at N=256 relative to raw visual selection.",
+      "status": "pass",
+      "threshold": 3.0,
+      "value": 4.6
+    },
+    "candidate_tail_action_violation_rises": {
+      "description": "The high-candidate raw selection increases action-consistency violation rate.",
+      "status": "pass",
+      "threshold": 0.25,
+      "value": 0.48426573426573394
+    },
+    "candidate_tail_real_utility_drops_to_256": {
+      "description": "The same raw high-candidate selection lowers real executed utility by more than one unit.",
+      "status": "pass",
+      "threshold": -1.0,
+      "value": -1.9461538461538455
+    },
+    "candidate_tail_visual_extremizes_to_256": {
+      "description": "Increasing candidate count to 256 raises selected visual plausibility under raw video selection.",
+      "status": "pass",
+      "threshold": 0.05,
+      "value": 0.07674823976724976
+    },
+    "horizon_changes_high_candidate_occlusion_exposure": {
+      "description": "Horizon changes high-candidate occlusion exposure under raw video selection.",
+      "status": "pass",
+      "threshold": 0.2,
+      "value": 0.29999999999999993
+    },
+    "occlusion_width_changes_uncertainty": {
+      "description": "Occlusion width changes high-candidate occlusion uncertainty.",
+      "status": "pass",
+      "threshold": 0.4,
+      "value": 0.75
+    },
+    "score_key_changes_action_consistency": {
+      "description": "The internal score component used for selection changes action-consistency violation rate.",
+      "status": "pass",
+      "threshold": 0.4,
+      "value": 0.9090909090909092
+    },
+    "score_key_changes_high_candidate_utility": {
+      "description": "The internal video score component used for selection changes high-candidate executed utility.",
+      "status": "pass",
+      "threshold": 1.0,
+      "value": 4.648214285714285
+    }
+  },
+  "summary": "N=256 visual gain 0.077, real utility change -1.946, calibrated repair 4.600, score-key utility span 4.648."
+}

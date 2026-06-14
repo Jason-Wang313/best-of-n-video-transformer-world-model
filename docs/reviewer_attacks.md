@@ -19,3 +19,11 @@ Yes. The claim is existence and measurement of a video-tail failure under contro
 ## Attack: The scorer is hand-built.
 
 The scorer is intentionally transparent so the failure can be audited. The tiny transformer score is included as a learned component, while the visual tail mechanism remains interpretable.
+
+## Attack: The paper looks like a reused top-score template.
+
+The v3 manuscript should be judged on video-specific evidence rather than generic top-score language: rendered counterfactual futures, action-consistency violations, occlusion uncertainty, frame-state checks, visual score-key ablations, and frame-level repair ladders. The finite-pool law is only bookkeeping; the scientific object is action-conditioned video fidelity.
+
+## Attack: The expanded experiments still do not prove broad deployment risk.
+
+Correct. The expanded `N=256`, horizon, occlusion, score-key, and repair tests strengthen internal validity and attack obvious cherry-picking concerns, but they do not turn this into a hardware or foundation-video-model benchmark.

@@ -1,0 +1,12 @@
+{
+  "claim_summary": "N=256 visual gain 0.077, real utility change -1.946, calibrated repair 4.600, score-key utility span 4.648.",
+  "claims": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\expansion\\claims.json",
+  "figures": [
+    "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\figures\\figure6_candidate_count_256.png",
+    "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\figures\\figure7_video_stress_sweeps.png",
+    "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\figures\\figure8_score_key_ablation.png",
+    "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\figures\\figure9_repair_ladder_256.png"
+  ],
+  "summary": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\expansion\\expanded_summary.csv",
+  "trials": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\expansion\\expanded_trials.csv"
+}

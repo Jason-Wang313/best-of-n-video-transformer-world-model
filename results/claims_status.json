@@ -48,12 +48,29 @@
       "claim": "The repository final audit chooses one allowed readiness status.",
       "evidence": {
         "allowed": [
-          "submission-ready v2",
+          "submission-ready v3",
           "needs stronger learned model",
           "needs benchmark validation",
           "redesign required"
         ],
-        "status": "submission-ready v2"
+        "status": "submission-ready v3"
+      },
+      "evidence_strength": "STRONG",
+      "status": "SUPPORTED"
+    },
+    {
+      "category": "expanded stress suite",
+      "claim": "The v3 expansion suite passes its generated candidate-count, horizon, occlusion, score-key, and repair claims.",
+      "evidence": "results/expansion/claims.json",
+      "evidence_strength": "STRONG",
+      "status": "SUPPORTED"
+    },
+    {
+      "category": "final pdf",
+      "claim": "The repository final PDF exists and is at least 25 pages.",
+      "evidence": {
+        "pages": 25,
+        "path": "paper/final/best of n video transformer world model-v3.pdf"
       },
       "evidence_strength": "STRONG",
       "status": "SUPPORTED"
@@ -68,7 +85,11 @@
           "top-score selection always hurts",
           "video transformers are bad",
           "action consistency always fixes it",
-          "real-robot validation"
+          "real-robot validation",
+          "submission-ready v2",
+          "v2 copy",
+          "v2.pdf",
+          "iclr_submission"
         ],
         "hits": []
       },
@@ -82,7 +103,11 @@
     "top-score selection always hurts",
     "video transformers are bad",
     "action consistency always fixes it",
-    "real-robot validation"
+    "real-robot validation",
+    "submission-ready v2",
+    "v2 copy",
+    "v2.pdf",
+    "iclr_submission"
   ],
   "full_multiseed_evidence": true,
   "project": "When Plausible Videos Lie",
