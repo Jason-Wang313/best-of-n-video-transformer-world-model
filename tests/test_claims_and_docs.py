@@ -19,7 +19,7 @@ def test_final_audit_status_is_exactly_one_allowed_label():
     root = Path(__file__).resolve().parents[1]
     text = (root / "docs" / "final_audit.md").read_text(encoding="utf-8")
     matches = [status for status in FINAL_AUDIT_STATUSES if status in text]
-    assert matches == ["submission-ready v3"]
+    assert matches == ["submission-ready v4"]
 
 
 def test_required_docs_exist():

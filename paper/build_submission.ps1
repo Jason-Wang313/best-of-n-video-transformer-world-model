@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $PaperDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = Split-Path -Parent $PaperDir
 $FinalDir = Join-Path $PaperDir "final"
-$FinalOut = Join-Path $FinalDir "best of n video transformer world model-v3.pdf"
+$FinalOut = Join-Path $FinalDir "best of n video transformer world model-v4.pdf"
 New-Item -ItemType Directory -Force $FinalDir | Out-Null
 
 Push-Location $PaperDir

@@ -1,0 +1,11 @@
+{
+  "aggregate_metrics": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\moving_mnist_benchmark\\aggregate_metrics.csv",
+  "claim_summary": "visual gain 0.357, MSE change 0.0268, ADE change 4.480, gate MSE repair 0.0449, gate ADE repair 11.852.",
+  "claims": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\moving_mnist_benchmark\\claims.json",
+  "digit_source": "mnist_train_images",
+  "figures": [
+    "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\figures\\figure10_moving_mnist_benchmark.png"
+  ],
+  "metrics": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\moving_mnist_benchmark\\metrics.csv",
+  "summary": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model\\results\\moving_mnist_benchmark\\summary.json"
+}

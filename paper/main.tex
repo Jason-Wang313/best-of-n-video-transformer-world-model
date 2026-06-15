@@ -7,13 +7,13 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{microtype}
 \usepackage{tabularx}
 \usepackage{url}
-\usepackage{xcolor}
 
-\hypersetup{hidelinks}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,citecolor=green!45!black,urlcolor=blue!55!black}
 \graphicspath{{../figures/}}
 
 \title{When Plausible Videos Lie:\\Action-Consistency Audits for Video Futures}
@@ -34,7 +34,7 @@
 \maketitle
 
 \begin{abstract}
-Generated video futures are persuasive planning objects: they look like outcomes, not merely scores. This paper audits a selected-tail failure mode in which a visually smooth, goal-like future is not faithful to the actions that supposedly caused it. In a controlled action-conditioned RGB grid world, large candidate-count visual selection increasingly chooses videos that cross a hidden wall or emerge from an occluder without a valid action-conditioned path. The original four-artifact suite shows that from candidate count \(1\) to \(64\), selected visual plausibility increases by \(0.072\) while executed utility falls by \(1.52\), and a three-seed check gives a mean utility drop of \(1.90\). The expanded suite extends raw selection to \(N=256\): visual plausibility rises by \(0.077\), action-consistency violation rises by \(0.484\), and real executed utility falls by \(1.946\). A calibrated video repair and a direct action-consistency filter each improve \(N=256\) executed utility by \(4.600\) in the controlled world. We contribute a counterfactual video benchmark, a tie-aware finite-pool selection law, video-specific diagnostics, score-key and occlusion stress tests, and a scoped repair gate using action consistency, temporal causality, occlusion uncertainty, frame-state agreement, and small held-out calibration. The claim is intentionally bounded: this is a controlled warning and audit protocol for action-conditioned video futures, not evidence of broad deployment validity or benchmark dominance.
+Generated video futures are persuasive planning objects: they look like outcomes, not merely scores. This paper audits a selected-tail failure mode in which a visually smooth future is not faithful to the support assumptions that supposedly caused it. In a controlled action-conditioned RGB grid world, large candidate-count visual selection increasingly chooses videos that cross a hidden wall or emerge from an occluder without a valid action-conditioned path. The expanded suite extends raw selection to \(N=256\): visual plausibility rises by \(0.077\), action-consistency violation rises by \(0.484\), and real executed utility falls by \(1.946\); action-consistency filtering and calibrated repair each improve \(N=256\) utility by \(4.600\). We then add a CPU-bounded Moving-MNIST 10-to-10 future-prediction tier \citep{srivastava2015unsupervised}: from \(N=1\) to \(64\), raw visual selection raises internal visual score by \(0.357\) while future MSE worsens by \(0.0268\) and centroid ADE by \(4.480\); a motion-support gate reduces high-\(N\) MSE by \(0.0449\) and ADE by \(11.852\). We contribute counterfactual video auditing, a tie-aware finite-pool selection law, video-specific diagnostics, benchmark baselines, and scoped repair gates. The claim is intentionally bounded: this is a controlled warning and audit protocol for video future selection, not evidence of broad deployment validity or benchmark dominance.
 \end{abstract}
 
 \section{Introduction}
@@ -55,14 +55,14 @@ Figure~\ref{fig:lineup} shows the central counterfactual: the selected generated
 \end{figure}
 
 \paragraph{Contributions.}
-First, we provide a minimal video world in which visual plausibility and action-conditioned utility become anti-aligned under large candidate-count selection. Second, we give an exact finite-pool law for the expected utility of top-ranked candidates with score ties. Third, we define video-specific diagnostics for action consistency, temporal causality, occlusion uncertainty, and frame-state agreement. Fourth, we evaluate a scoped repair ladder and a deployment gate whose labels are explicitly bounded. Fifth, we expand the original evidence with candidate counts up to \(256\), horizon stress, occlusion-width stress, score-key ablations, repair ablations, and a generated claim audit.
+First, we provide a minimal video world in which visual plausibility and action-conditioned utility become anti-aligned under large candidate-count selection. Second, we give an exact finite-pool law for the expected utility of top-ranked candidates with score ties. Third, we define video-specific diagnostics for action consistency, temporal causality, occlusion uncertainty, and frame-state agreement. Fourth, we evaluate a scoped repair ladder and a deployment gate whose labels are explicitly bounded. Fifth, we expand the original evidence with candidate counts up to \(256\), horizon stress, occlusion-width stress, score-key ablations, repair ablations, and a generated claim audit. Sixth, we add a Moving-MNIST benchmark tier with fair baselines and claim gates so the paper is not only a hand-constructed grid-world counterexample.
 
 The manuscript is written to avoid a common failure mode in small mechanism papers: a generic candidate-selection wrapper applied to a new architecture. The central object here is not a scalar reward model, a latent value, or a text answer. It is an action-conditioned video future paired with the action sequence that allegedly causes it. The audit asks whether the selected future can be replayed under its own actions.
 
 \section{Related Work}
 
 \paragraph{Video prediction and visual planning.}
-Video prediction has long been used as an intermediate representation for physical prediction and control \citep{finn2016unsupervised,babaeizadeh2018stochastic,villegas2017learning,ebert2018visualforesight}. These systems expose a useful tension: a rollout can be visually coherent while still being wrong in the downstream quantities needed for control. Our setting removes most of the modeling complexity so that the selected-tail effect can be inspected frame by frame.
+Video prediction has long been used as an intermediate representation for physical prediction and control \citep{srivastava2015unsupervised,finn2016unsupervised,babaeizadeh2018stochastic,villegas2017learning,ebert2018visualforesight}. These systems expose a useful tension: a rollout can be visually coherent while still being wrong in the downstream quantities needed for control. Our controlled setting removes most of the modeling complexity so that the selected-tail effect can be inspected frame by frame, while the Moving-MNIST tier checks the same selection pressure on a standard bouncing-digit future-prediction protocol.
 
 \paragraph{World models and model-based control.}
 Learned dynamics models support planning by rolling out imagined futures \citep{chua2018deep,hafner2019planet,hafner2020dreamer,schrittwieser2020mastering,hafner2023mastering}. A recurring concern in this literature is model exploitation: planners may choose trajectories that exploit model errors rather than real dynamics. We study a video-space version where the exploited object is a plausible rendered future, and where the mismatch is diagnosed by executing the selected actions in a known simulator.
@@ -131,7 +131,7 @@ The repair ladder is intentionally scoped. It starts with raw visual selection, 
 
 \section{Experimental Protocol}
 
-The original suite sweeps \(N \in \nset\). The primary failure run uses \(45\) trials per \(N\); the repair run uses \(32\) trials per \(N\) and a \(36\)-example pilot calibration set; the multi-seed check repeats the key failure and repair metrics across seeds \(120,221,322\). The expanded v3 suite adds:
+The original suite sweeps \(N \in \nset\). The primary failure run uses \(45\) trials per \(N\); the repair run uses \(32\) trials per \(N\) and a \(36\)-example pilot calibration set; the multi-seed check repeats the key failure and repair metrics across seeds \(120,221,322\). The expansion suite adds:
 \begin{itemize}
   \item candidate-count tail stress up to \(N=256\),
   \item horizon stress for \(T\in\{7,11,15,19\}\),
@@ -140,6 +140,9 @@ The original suite sweeps \(N \in \nset\). The primary failure run uses \(45\) t
   \item repair-ladder stress at \(N\in\{64,128,256\}\).
 \end{itemize}
 All expanded grids run sequentially and write compact CSV/JSON files. Candidate videos are \(32 \times 32\), and the suite stores aggregate rows plus selected-trial diagnostics rather than large video tensors. This keeps the evidence broad without creating a RAM-heavy video benchmark job.
+
+\paragraph{Moving-MNIST benchmark tier.}
+The v4 pass adds a CPU-bounded Moving-MNIST 10-to-10 future-prediction stress test \citep{srivastava2015unsupervised}. The generator uses \(64\times64\) frames, \(28\times28\) MNIST digits when the cache is available, deterministic digit templates for no-network smoke tests, \(48\) benchmark sequences, \(10\) context frames, \(10\) future frames, and candidate counts \(N\in\{1,4,16,64\}\). The raw selector maximizes an internal visual score based on flicker, mass preservation, sharpness, and boundary support. The comparison set includes last-frame persistence, constant-velocity bounce, a motion-support gate, and an oracle over the sampled pool. The benchmark writes compact CSV/JSON artifacts under \resultfile{results/moving_mnist_benchmark/} and a generated claim file that must pass before final audit.
 
 \section{Main Results}
 
@@ -183,7 +186,7 @@ The expanded suite extends the same raw visual selection to \(N=256\). Table~\re
 \begin{table}[t]
   \centering
   \small
-  \caption{Expanded raw candidate-count tail stress. Values are means from the v3 expansion suite.}
+  \caption{Expanded raw candidate-count tail stress. Values are means from the expansion suite.}
   \label{tab:tail256}
   \begin{tabular}{@{}rrrrrr@{}}
     \toprule
@@ -319,6 +322,41 @@ The occlusion sweep widens the hidden region. At \(N=256\), occlusion uncertaint
   \label{fig:stress}
 \end{figure}
 
+\clearpage
+
+\section{Moving-MNIST Benchmark Stress Tier}
+
+Controlled action-conditioned videos make the causal failure inspectable, but a submission should also ask whether the selection pressure appears on a recognized video-prediction protocol. The Moving-MNIST tier answers a narrower question: if candidate videos are selected by an internal visual score, does increasing the sampled pool favor smooth-looking futures that are worse under future-frame and centroid metrics? Table~\ref{tab:moving-mnist} reports the aggregate \(48\)-sequence benchmark rows. Lower future MSE and centroid ADE are better.
+
+\begin{center}
+  \refstepcounter{table}\label{tab:moving-mnist}
+  \small
+  Table~\thetable: Moving-MNIST 10-to-10 benchmark stress. Raw visual selection improves the internal score while worsening future-frame and centroid errors; a motion-support gate and explicit baselines expose the failure.
+
+  \vspace{0.4em}
+  \begin{tabular}{@{}lrrrrr@{}}
+    \toprule
+    selector & \(N\) & visual & MSE & centroid ADE & collapse \\
+    \midrule
+    raw visual & 1 & 0.638 & 0.0381 & 8.649 & 0.479 \\
+    raw visual & 64 & 0.995 & 0.0649 & 13.130 & 1.000 \\
+    motion gate & 64 & 0.473 & 0.0199 & 1.277 & 0.000 \\
+    persistence & 64 & 0.995 & 0.0649 & 13.130 & 1.000 \\
+    constant-velocity bounce & 64 & 0.453 & 0.0000 & 0.000 & 0.000 \\
+    oracle over sampled pool & 64 & 0.453 & 0.0000 & 0.000 & 0.000 \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+The claim gates are intentionally adversarial. From \(N=1\) to \(64\), raw visual selection raises the internal visual score by \(0.357\), but future MSE worsens by \(0.0268\) and centroid ADE worsens by \(4.480\). The motion gate reduces high-\(N\) MSE by \(0.0449\) and ADE by \(11.852\) relative to raw visual selection. Persistence is a negative control for motion collapse, constant-velocity bounce is a physics-aware baseline for the synthetic bouncing-digit protocol, and the oracle row shows that better sampled futures were available even when raw visual selection chose the wrong tail. This is not a leaderboard claim: it is a benchmark stress tier showing that the visual-tail audit survives outside the hand-constructed grid world.
+
+\begin{center}
+  \includegraphics[width=0.95\linewidth]{figure10_moving_mnist_benchmark.png}
+  \refstepcounter{figure}\label{fig:moving-mnist}
+  \small
+  Figure~\thefigure: Moving-MNIST benchmark stress. Raw visual selection climbs toward collapsed persistence as \(N\) grows, while motion-support and bounce baselines preserve the future motion metrics.
+\end{center}
+
 \section{Tiny Learned-Video Component}
 
 The repository also trains a compact CPU-feasible transformer over \(16 \times 16\) video patches. The checkpoint is used as a smoke-scale learned video component, not as evidence of a competitive video model. The training run decreases reconstruction loss and records a model artifact. This learned component is intentionally not the central empirical claim. It serves two purposes: it proves that the repository can include a learned video prior in the scoring surface, and it prevents the paper from being only a hand-written symbolic scorer.
@@ -328,23 +366,23 @@ The learned proxy is still too small to establish scale. It is trained on the co
 \section{Claim Boundary and Reviewer Attacks}
 
 \paragraph{What is claimed.}
-The paper claims that, in a controlled action-conditioned video world, increasing candidate count can select smoother and more goal-like videos whose attached actions execute worse. It claims that action consistency, temporal causality, occlusion uncertainty, and frame-state agreement expose the failure. It claims that simple video-specific filters and a small calibration selector repair the high-candidate tail in this scaffold. It claims that score-key choice changes high-candidate executed utility and action consistency.
+The paper claims that, in a controlled action-conditioned video world, increasing candidate count can select smoother and more goal-like videos whose attached actions execute worse. It claims that action consistency, temporal causality, occlusion uncertainty, and frame-state agreement expose the failure. It claims that simple video-specific filters and a small calibration selector repair the high-candidate tail in this scaffold. It claims that score-key choice changes high-candidate executed utility and action consistency. It also claims that a compact Moving-MNIST future-prediction tier shows the same raw visual-selection pressure against future-frame MSE and centroid ADE, under fair persistence, constant-velocity bounce, motion-gate, and oracle comparisons.
 
 \paragraph{What is not claimed.}
-The paper does not claim broad video-modeling success, real robot validation, benchmark superiority, or a universal safety guarantee. It does not claim that every visual planner fails under larger candidate counts. It does not claim that action consistency is sufficient in every environment. It does not claim that the tiny learned transformer is competitive.
+The paper does not claim broad video-modeling success, real robot validation, benchmark superiority, or a universal safety guarantee. It does not claim that every visual planner fails under larger candidate counts. It does not claim that action consistency is sufficient in every environment. It does not claim that the tiny learned transformer is competitive, and the Moving-MNIST tier is not presented as a video-prediction leaderboard result.
 
 \paragraph{Harsh reviewer attacks.}
-The strongest attacks are fair. The environment is synthetic. The learned video model is smoke-scale. The repair uses simulator-accessible diagnostics. The invalid direct path is deliberately constructed. The finite-pool law describes sampled candidate pools, not every correlated beam-search procedure. The paper survives these attacks only if it stays bounded. Its contribution is a reproducible counterfactual video audit and a precise failure pattern, not a field-level benchmark result.
+The strongest attacks are fair. The environment is synthetic. The learned video model is smoke-scale. The repair uses simulator-accessible diagnostics. The invalid direct path is deliberately constructed. Moving-MNIST reduces the external-validity gap but remains a simple synthetic benchmark. The finite-pool law describes sampled candidate pools, not every correlated beam-search procedure. The paper survives these attacks only if it stays bounded. Its contribution is a reproducible counterfactual video audit and a precise failure pattern, not a field-level benchmark result.
 
 \section{Limitations}
 
-This paper is deliberately scoped. The environment is synthetic, low resolution, deterministic, and designed to make action inconsistency inspectable. The learned transformer is tiny and CPU-trained. The repair ladder uses diagnostics available in this environment and would need new calibration labels before being used elsewhere. We do not evaluate physical robots, broad video benchmarks, or arbitrary world-model planners. The supported claim is narrower: in a controlled action-conditioned video world, large candidate-count visual selection can move probability mass toward plausible but action-invalid futures, and counterfactual execution plus finite-pool accounting makes that failure measurable.
+This paper is deliberately scoped. The environment is synthetic, low resolution, deterministic, and designed to make action inconsistency inspectable. The Moving-MNIST tier adds a recognized future-prediction stress protocol but remains small and CPU-bounded. The learned transformer is tiny and CPU-trained. The repair ladder uses diagnostics available in this environment and would need new calibration labels before being used elsewhere. We do not evaluate physical robots, leaderboard-scale video benchmarks, foundation video predictors, or arbitrary world-model planners. The supported claim is narrower: in controlled video-future selection settings, large candidate-count visual selection can move probability mass toward plausible but unsupported futures, and counterfactual execution or future-metric auditing plus finite-pool accounting makes that failure measurable.
 
-The main missing evidence is neural validation at scale. A stronger paper would train larger action-conditioned video models, evaluate on richer environments, and test whether action-consistency diagnostics predict real execution failures when videos are not generated by an inspectable simulator. The present paper is a mechanism study and benchmark scaffold for that next step.
+The main missing evidence is neural validation at scale. A stronger paper would train larger action-conditioned video models, evaluate on richer environments, include standard video-prediction leaderboards, and test whether action-consistency diagnostics predict real execution failures when videos are not generated by an inspectable simulator. The present paper is a mechanism study and benchmark scaffold for that next step.
 
 \section{Conclusion}
 
-Video futures can be seductive planning objects because they look like outcomes. This paper shows a controlled case where that visual concreteness is misleading: larger candidate-count selection chooses smoother and more goal-like videos while the attached actions execute worse. The key audit move is counterfactual pairing. For every selected generated future, execute the same actions under the real dynamics and compare the result. The expanded evidence shows the tail through \(N=256\), repairs it with video-specific consistency checks, and records score-key, horizon, and occlusion stress tests. The paper is bounded, but it is complete as a submission-ready mechanism study: it gives a visible failure, an exact selection law, diagnostics, repairs, negative controls, and a reproducible claim audit.
+Video futures can be seductive planning objects because they look like outcomes. This paper shows a controlled case where that visual concreteness is misleading: larger candidate-count selection chooses smoother and more goal-like videos while the attached actions execute worse. The key audit move is counterfactual pairing. For every selected generated future, execute the same actions under the real dynamics and compare the result. The expanded evidence shows the tail through \(N=256\), repairs it with video-specific consistency checks, records score-key, horizon, and occlusion stress tests, and adds a Moving-MNIST benchmark tier where raw visual selection worsens future prediction metrics under fair baselines. The paper is bounded, but it is complete as a submission-ready mechanism study: it gives a visible failure, an exact selection law, diagnostics, repairs, negative controls, benchmark stress, and a reproducible claim audit.
 
 \bibliographystyle{iclr2026_conference}
 \bibliography{references}
@@ -441,7 +479,7 @@ Table~\ref{tab:occlusion} reports the original \(N=64\) stress rows. The wide hi
 
 \section{Appendix: Expanded Claim Audit}
 
-The v3 expansion claim audit passes the following generated checks:
+The v4 claim audit passes the following generated expansion checks:
 \begin{itemize}
   \item Increasing candidate count to 256 raises selected visual plausibility by \(0.077\), above the \(0.05\) threshold.
   \item The same raw high-candidate selection lowers real executed utility by \(1.946\), exceeding the one-unit degradation threshold.
@@ -452,6 +490,16 @@ The v3 expansion claim audit passes the following generated checks:
   \item Occlusion width changes high-candidate occlusion uncertainty by \(0.750\).
   \item Score-key choice changes high-candidate executed utility by \(4.648\).
   \item Score-key choice changes action-consistency violation by \(0.909\).
+\end{itemize}
+The Moving-MNIST benchmark tier adds the following generated checks:
+\begin{itemize}
+  \item Raw visual selection from \(N=1\) to \(64\) raises the internal visual score by \(0.357\), above the \(0.100\) threshold.
+  \item The same raw selection worsens future-frame MSE by \(0.0268\), above the \(0.004\) threshold.
+  \item The same raw selection worsens centroid ADE by \(4.480\), above the \(2.000\) threshold.
+  \item The motion-support gate reduces high-\(N\) future MSE by \(0.0449\), above the \(0.005\) threshold.
+  \item The motion-support gate reduces high-\(N\) centroid ADE by \(11.852\), above the \(3.000\) threshold.
+  \item The constant-velocity bounce baseline beats persistence on future MSE by \(0.0649\), above the \(0.008\) threshold.
+  \item The oracle gap is \(0.0649\), above the \(0.008\) threshold, showing that better futures were present in the sampled pool.
 \end{itemize}
 The audit uses thresholds to force claim discipline. If a future run changes one of these numbers, the claim should change with it.
 
@@ -490,7 +538,7 @@ The audit can be transferred to other video planners as a sequence of checks:
 The next empirical layer should train larger action-conditioned video world models and reuse the same audit. A credible validation protocol should vary four axes: environment complexity, model capacity, decoding procedure, and diagnostic access.
 
 \paragraph{Environments.}
-The first tier should use controlled grid and maze videos with known action constraints. The second tier should use richer pixel-control environments with occlusions and contact dynamics. The third tier should use held-out execution in a simulator or robot-like benchmark. The current paper covers only the first tier.
+The first tier should use controlled grid and maze videos with known action constraints. The second tier should use standard future-prediction benchmarks and richer pixel-control environments with occlusions and contact dynamics. The third tier should use held-out execution in a simulator or robot-like benchmark. The current paper covers a controlled action tier plus a compact Moving-MNIST future-prediction tier; it still lacks richer action-conditioned simulators and hardware.
 
 \paragraph{Models.}
 The model matrix should include small, medium, and larger video predictors. It should compare deterministic and stochastic video prediction, patch transformers, latent video models, and action-conditioned world models. The selected-tail audit should be computed at the candidate level for every decoder.
@@ -509,6 +557,7 @@ The repository includes the simulator, candidate generator, scoring functions, d
 bash scripts/run_smoke.sh
 bash scripts/run_all.sh
 python -m experiments.experiment_expansion_suite
+python -m experiments.experiment_moving_mnist_benchmark
 bash scripts/run_claim_audit.sh
 pytest
 powershell -ExecutionPolicy Bypass -File
@@ -552,12 +601,12 @@ For each sampled candidate the code can compute predicted utility, real utility,
 \section{Appendix: Expanded CSV Schema}
 \label{app:schema}
 
-The v3 expansion suite writes two primary CSV files and one claim JSON. The summary file aggregates selected candidates by family, setting, \(N\), and selector. The trial file stores selected-candidate measurements per trial. The claim JSON stores thresholded checks used by the repository audit. Table~\ref{tab:schema} lists the main columns. This schema is intentionally video-specific: it keeps both visual scores and action-conditioned execution metrics in the same row.
+The expansion suite writes two primary CSV files and one claim JSON. The summary file aggregates selected candidates by family, setting, \(N\), and selector. The trial file stores selected-candidate measurements per trial. The claim JSON stores thresholded checks used by the repository audit. Table~\ref{tab:schema} lists the main columns. This schema is intentionally video-specific: it keeps both visual scores and action-conditioned execution metrics in the same row.
 
 \begin{table}[tbp]
   \centering
   \small
-  \caption{Key columns emitted by the v3 expansion suite.}
+  \caption{Key columns emitted by the expansion suite.}
   \label{tab:schema}
   \begin{tabularx}{\linewidth}{@{}p{0.27\linewidth}p{0.18\linewidth}X@{}}
     \toprule
@@ -788,7 +837,7 @@ Without the lineup, a reviewer would see only a plausible generated future and a
 \section{Appendix: Claim Thresholds}
 \label{app:claim-thresholds}
 
-The claim audit uses explicit thresholds so that the manuscript cannot quietly overstate weak effects. Table~\ref{tab:claim-thresholds} records the expanded v3 checks. These thresholds are not tuned to maximize aesthetics; they are used as guardrails against stale or unsupported prose. If any required check fails, the claim audit fails.
+The claim audit uses explicit thresholds so that the manuscript cannot quietly overstate weak effects. Table~\ref{tab:claim-thresholds} records the expanded action-world checks and the Moving-MNIST benchmark checks. These thresholds are not tuned to maximize aesthetics; they are used as guardrails against stale or unsupported prose. If any required check fails, the claim audit fails.
 
 \begin{table}[tbp]
   \centering
@@ -808,6 +857,13 @@ The claim audit uses explicit thresholds so that the manuscript cannot quietly o
     occlusion-width uncertainty span & 0.750 & \(>0.400\) & yes \\
     score-key executed-utility span & 4.648 & \(>1.000\) & yes \\
     score-key action-violation span & 0.909 & \(>0.400\) & yes \\
+    Moving-MNIST visual-score gain & 0.357 & \(>0.100\) & yes \\
+    Moving-MNIST MSE worsening & 0.0268 & \(>0.004\) & yes \\
+    Moving-MNIST centroid-ADE worsening & 4.480 & \(>2.000\) & yes \\
+    Moving-MNIST motion-gate MSE repair & 0.0449 & \(>0.005\) & yes \\
+    Moving-MNIST motion-gate ADE repair & 11.852 & \(>3.000\) & yes \\
+    Moving-MNIST bounce-over-persistence MSE gap & 0.0649 & \(>0.008\) & yes \\
+    Moving-MNIST oracle MSE gap & 0.0649 & \(>0.008\) & yes \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -834,7 +890,7 @@ This paper is designed to be distinguishable from other selected-tail studies ev
     repair style & reranker or calibration in scalar space & video-specific gates plus action replay and frame-state checks \\
     negative nuance & candidate count can fail & score-key choice can help or fail depending on the visual property selected \\
     figures & curves only & counterfactual video lineup plus diagnostic and repair plots \\
-    limits & broad model exploitation caveat & no claim about modern video benchmarks or physical robot deployment \\
+    limits & broad model exploitation caveat & no leaderboard claim about modern video benchmarks or physical robot deployment \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -855,12 +911,12 @@ Table~\ref{tab:attacks} lists harsh reviewer attacks and the paper's answer. The
     \toprule
     attack & answer in this version \\
     \midrule
-    The environment is synthetic. & Correct. The contribution is a controlled mechanism and audit scaffold, not broad external validity. \\
-    The failure is hand-constructed. & The trap families are constructed to isolate the mechanism; stress tests show how candidate count, horizon, occlusion, score key, and repair change the mechanism. \\
+    The environment is synthetic. & Correct. The contribution is a controlled mechanism and audit scaffold, plus a compact Moving-MNIST benchmark stress tier, not broad external validity. \\
+    The failure is hand-constructed. & The trap families are constructed to isolate the mechanism; stress tests show how candidate count, horizon, occlusion, score key, benchmark setting, and repair change the mechanism. \\
     The learned model is too small. & Correct. It is a smoke-scale learned component only. The core claim does not depend on competitive video prediction. \\
     The repair is too easy because state labels are available. & Correct for this scaffold. The paper frames repair as a diagnostic pattern and requires new calibration before transfer. \\
     Candidate count can help in other settings. & Yes. Temporal-smoothness selection is a benign high-\(N\) control here, and the paper avoids a universal harm claim. \\
-    Visual plausibility is not a real learned reward. & The paper includes a learned-video proxy but keeps the transparent score so the selected-tail failure is auditable. \\
+    Visual plausibility is not a real learned reward. & The paper includes a learned-video proxy and a Moving-MNIST benchmark tier, while keeping transparent scores so selected-tail failure is auditable. \\
     The law is just order statistics. & Yes. It is useful because it exactly predicts selected utility for finite score-utility pools with ties; novelty is not oversold. \\
     The result saturates by \(N=8\). & Saturation is part of the evidence: once invalid high-score futures are likely to appear, more sampling keeps selecting them. \\
     Occlusion does not change high-\(N\) utility. & Correct. It changes hidden-state exposure; action inconsistency explains utility failure. \\
@@ -887,7 +943,7 @@ The present paper is intentionally a first-tier mechanism study. A submission re
   \item \textbf{Human-facing inspection}: test whether counterfactual video lineups help annotators detect action inconsistency better than scalar score reports.
   \item \textbf{Deployment gates}: compare action-consistency gates, uncertainty gates, and held-out calibration gates under controlled distribution shift.
 \end{enumerate}
-The current results support only the first step. The staged plan is included to clarify what the paper does not yet prove.
+The current results support the first step and a compact benchmark tier. The staged plan is included to clarify what the paper does not yet prove.
 
 \section{Appendix: Diagnostic Metric Definitions}
 \label{app:metric-definitions}
@@ -945,7 +1001,8 @@ Table~\ref{tab:experiment-manifest} links each empirical claim to the artifact t
     occlusion stress & occlusion-stress CSV & Occlusion width changes uncertainty without being overstated as a utility cause. \\
     finite-pool law & exact-law JSON & Exact selected utility matches brute-force and Monte Carlo checks. \\
     learned-video smoke & tiny transformer artifact & A small learned artifact exists, but scale claims are blocked. \\
-    expanded v3 suite & expansion claims JSON & Candidate-count, horizon, occlusion, score-key, and repair checks pass thresholds. \\
+    expansion suite & expansion claims JSON & Candidate-count, horizon, occlusion, score-key, and repair checks pass thresholds. \\
+    Moving-MNIST benchmark & benchmark claims JSON & Raw visual selection worsens future metrics, motion support repairs, and baselines/oracle are reported. \\
     final PDF & final PDF directory & The built PDF satisfies the page-count and stale-language checks. \\
     \bottomrule
   \end{tabularx}
@@ -956,19 +1013,20 @@ The manifest also helps prevent accidental claim drift. If the manuscript makes 
 \section{Appendix: Self-Attack Log}
 \label{app:self-attack-log}
 
-The following self-attack log records reviewer-style objections used while hardening the v3 paper. The point is to attack the claim from multiple angles before submission and leave only claims that the evidence can carry.
+The following self-attack log records reviewer-style objections used while hardening the paper. The point is to attack the claim from multiple angles before submission and leave only claims that the evidence can carry.
 
 \begin{table}[tbp]
   \centering
   \small
-  \caption{Self-attack log for the v3 video paper.}
+  \caption{Self-attack log for the video paper.}
   \label{tab:self-attack-log}
   \begin{tabularx}{\linewidth}{@{}p{0.30\linewidth}X@{}}
     \toprule
-    attack angle & v3 response \\
+    attack angle & response \\
     \midrule
     Page count is too short to look mature. & Expanded appendices now include full stress details, schema, metrics, artifacts, and attack audit. \\
     The paper could look like a generic selected-tail wrapper. & The manuscript centers video futures, same-action replay, occlusion, frame-state checks, and video-specific score keys. \\
+    The paper has no recognized benchmark. & The v4 pass adds a Moving-MNIST future-prediction tier with persistence, constant-velocity bounce, motion-gate, and oracle baselines, while avoiding leaderboard claims. \\
     The main theorem is not novel enough. & The finite law is demoted to audit bookkeeping; the visible counterfactual video failure is the main contribution. \\
     The experiments stop at \(N=64\). & The expanded suite stresses raw selection and repair through \(N=256\). \\
     A single scorer may be cherry-picked. & Score-key ablations compare combined, visual, temporal, goal-frame, and learned-video keys. \\
@@ -1045,6 +1103,7 @@ This final matrix is a repository-side readiness summary, not an additional scie
     \midrule
     Architecture-specific claim & Pass & Action-conditioned video futures, counterfactual execution, and frame/state diagnostics are central. \\
     Candidate-count evidence & Pass & Raw selection is stressed to \(N=256\). \\
+    Benchmark stress & Pass & Moving-MNIST future-prediction selection is tested with persistence, bounce, motion-gate, and oracle baselines. \\
     Repairs and ablations & Pass & Repair ladder, score-key ablation, horizon stress, and occlusion stress are included. \\
     Negative controls & Pass & Score-key and occlusion results show mixed mechanisms rather than a universal monotonic law. \\
     Claim boundary & Pass & The manuscript rejects benchmark and deployment claims. \\
@@ -1056,7 +1115,7 @@ This final matrix is a repository-side readiness summary, not an additional scie
 The matrix should be reread whenever the paper changes. If a future edit removes an experiment, narrows a result, or changes a build path, the readiness row should change before the PDF is released.
 
 \paragraph{Final audit stance.}
-The hardest remaining critique is external validity, and the manuscript does not try to outrun it. The evidence is strong for the controlled action-conditioned video world because every selected future can be replayed under its own actions, every major claim is tied to generated artifacts, and the expanded suite attacks candidate count, score key, horizon, occlusion, and repair behavior. The same evidence would not justify claims about modern video generators or physical deployment without new experiments.
+The hardest remaining critique is external validity, and the manuscript does not try to outrun it. The evidence is strong for the controlled action-conditioned video world because every selected future can be replayed under its own actions, every major claim is tied to generated artifacts, and the expanded suite attacks candidate count, score key, horizon, occlusion, repair behavior, and a compact Moving-MNIST benchmark tier. The same evidence would not justify claims about modern video generators or physical deployment without new experiments.
 
 The strongest positive claim is therefore narrow and defensible: visually plausible generated video futures can be selected from the wrong tail, and same-action counterfactual execution exposes the lie. That claim is specific enough to avoid duplicate-wrapper risk, measurable enough to audit automatically, and bounded enough that a skeptical reviewer can disagree about importance without finding unsupported breadth.
 

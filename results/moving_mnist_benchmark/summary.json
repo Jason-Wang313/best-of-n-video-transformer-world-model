@@ -1,0 +1,12 @@
+{
+  "claim_summary": "visual gain 0.357, MSE change 0.0268, ADE change 4.480, gate MSE repair 0.0449, gate ADE repair 11.852.",
+  "meta": {
+    "canvas_size": 64,
+    "context_frames": 10,
+    "dataset": "Moving MNIST 10-to-10 future prediction subset",
+    "digit_source": "mnist_train_images",
+    "future_frames": 10,
+    "seed": 2026,
+    "sequence_count": 48
+  }
+}

@@ -22,8 +22,8 @@ The scorer is intentionally transparent so the failure can be audited. The tiny 
 
 ## Attack: The paper looks like a reused top-score template.
 
-The v3 manuscript should be judged on video-specific evidence rather than generic top-score language: rendered counterfactual futures, action-consistency violations, occlusion uncertainty, frame-state checks, visual score-key ablations, and frame-level repair ladders. The finite-pool law is only bookkeeping; the scientific object is action-conditioned video fidelity.
+The manuscript should be judged on video-specific evidence rather than generic top-score language: rendered counterfactual futures, action-consistency violations, occlusion uncertainty, frame-state checks, visual score-key ablations, frame-level repair ladders, and a Moving-MNIST future-prediction stress tier. The finite-pool law is only bookkeeping; the scientific object is video fidelity under the selected support assumptions.
 
 ## Attack: The expanded experiments still do not prove broad deployment risk.
 
-Correct. The expanded `N=256`, horizon, occlusion, score-key, and repair tests strengthen internal validity and attack obvious cherry-picking concerns, but they do not turn this into a hardware or foundation-video-model benchmark.
+Correct. The expanded `N=256`, horizon, occlusion, score-key, repair, and Moving-MNIST tests strengthen internal validity and attack obvious cherry-picking concerns, but they do not turn this into a hardware, leaderboard, or foundation-video-model benchmark.

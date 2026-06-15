@@ -3,7 +3,7 @@ set -euo pipefail
 
 PAPER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FINAL_DIR="$PAPER_DIR/final"
-OUT_NAME="best of n video transformer world model-v3.pdf"
+OUT_NAME="best of n video transformer world model-v4.pdf"
 cd "$PAPER_DIR"
 mkdir -p "$FINAL_DIR"
 

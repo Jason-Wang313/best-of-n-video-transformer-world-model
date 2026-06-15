@@ -1,0 +1,48 @@
+{
+  "all_passed": true,
+  "claims": {
+    "moving_mnist_bounce_baseline_beats_persistence": {
+      "description": "A standard constant-velocity bounce baseline beats last-frame persistence on future MSE.",
+      "status": "pass",
+      "threshold": 0.008,
+      "value": 0.06485825474373996
+    },
+    "moving_mnist_motion_gate_repairs_ade": {
+      "description": "The motion-support gate reduces high-candidate centroid error relative to raw visual selection.",
+      "status": "pass",
+      "threshold": 3.0,
+      "value": 11.852347946605661
+    },
+    "moving_mnist_motion_gate_repairs_mse": {
+      "description": "The motion-support gate reduces high-candidate future-frame MSE relative to raw visual selection.",
+      "status": "pass",
+      "threshold": 0.005,
+      "value": 0.04493147033887605
+    },
+    "moving_mnist_oracle_gap_visible": {
+      "description": "The candidate pool contains better futures than raw visual selection chooses.",
+      "status": "pass",
+      "threshold": 0.008,
+      "value": 0.06485825474373996
+    },
+    "moving_mnist_raw_centroid_ade_worsens": {
+      "description": "The same high-candidate raw selection worsens digit-centroid displacement error.",
+      "status": "pass",
+      "threshold": 2.0,
+      "value": 4.4802944585425095
+    },
+    "moving_mnist_raw_mse_worsens": {
+      "description": "The same high-candidate raw selection worsens future-frame MSE.",
+      "status": "pass",
+      "threshold": 0.004,
+      "value": 0.026795641072870545
+    },
+    "moving_mnist_raw_visual_extremizes": {
+      "description": "Increasing candidate count to 64 raises the raw internal visual score on Moving MNIST.",
+      "status": "pass",
+      "threshold": 0.1,
+      "value": 0.3573242515739927
+    }
+  },
+  "summary": "visual gain 0.357, MSE change 0.0268, ADE change 4.480, gate MSE repair 0.0449, gate ADE repair 11.852."
+}

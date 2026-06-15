@@ -13,6 +13,12 @@
 - The `N=256` repair ladder recovers high-candidate-count utility by selecting action-consistent video futures rather than the visually most flattering future.
 - Horizon length, occlusion width, and score-key choices materially change the measured failure mode, which prevents the paper from relying on one cherry-picked rendering condition.
 
+## Supported After `experiments.experiment_moving_mnist_benchmark`
+
+- On a CPU-bounded Moving-MNIST 10-to-10 future-prediction subset, raw visual selection from `N=1` to `N=64` raises internal visual score while worsening future-frame MSE and digit-centroid ADE.
+- A motion-support gate reduces high-candidate future MSE and centroid ADE relative to raw visual selection.
+- Persistence, constant-velocity bounce, and oracle baselines are reported so the benchmark tier can expose both weak baselines and better available futures in the same candidate pools.
+
 ## Boundary
 
-The repo studies one controlled video environment and smoke-scale learned video prediction. It does not claim broad external validity, hardware deployment evidence, or a guarantee that one diagnostic removes all risk.
+The repo studies one controlled action-conditioned video environment, smoke-scale learned video prediction, and a compact Moving-MNIST stress tier. It does not claim broad external validity, hardware deployment evidence, leaderboard-quality video prediction, or a guarantee that one diagnostic removes all risk.

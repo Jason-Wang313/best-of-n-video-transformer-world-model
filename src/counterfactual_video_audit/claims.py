@@ -17,8 +17,11 @@ FORBIDDEN_CLAIMS = [
     "action consistency always fixes it",
     "real-robot validation",
     "submission-ready v2",
+    "submission-ready v3",
     "v2 copy",
     "v2.pdf",
+    "v3.pdf",
+    "best of n video transformer world model-v3.pdf",
     "iclr_submission",
 ]
 
@@ -80,7 +83,8 @@ def build_claim_status(root: Path) -> dict[str, Any]:
     occlusion = _load(results / "experiment_occlusion_stress.json")
     multi = _load(results / "multiseed_strong_evidence.json")
     expansion = _load(results / "expansion" / "claims.json")
-    final_pdf = root / "paper" / "final" / "best of n video transformer world model-v3.pdf"
+    moving_mnist = _load(results / "moving_mnist_benchmark" / "claims.json")
+    final_pdf = root / "paper" / "final" / "best of n video transformer world model-v4.pdf"
 
     full_multiseed = bool(multi and not multi.get("smoke"))
     claims: list[dict[str, Any]] = []
@@ -193,10 +197,21 @@ def build_claim_status(root: Path) -> dict[str, Any]:
     claims.append(
         {
             "category": "expanded stress suite",
-            "claim": "The v3 expansion suite passes its generated candidate-count, horizon, occlusion, score-key, and repair claims.",
+            "claim": "The expansion suite passes its generated candidate-count, horizon, occlusion, score-key, and repair claims.",
             "status": _status(expansion_ok),
             "evidence_strength": "STRONG" if expansion_ok else "WEAK",
             "evidence": "results/expansion/claims.json",
+        }
+    )
+
+    moving_mnist_ok = bool(moving_mnist and moving_mnist.get("all_passed"))
+    claims.append(
+        {
+            "category": "moving mnist benchmark",
+            "claim": "The Moving-MNIST benchmark tier passes raw-selection failure, motion-gate repair, baseline, and oracle-gap claim gates.",
+            "status": _status(moving_mnist_ok),
+            "evidence_strength": "STRONG" if moving_mnist_ok else "WEAK",
+            "evidence": "results/moving_mnist_benchmark/claims.json",
         }
     )
 
@@ -208,7 +223,7 @@ def build_claim_status(root: Path) -> dict[str, Any]:
             "claim": "The repository final PDF exists and is at least 25 pages.",
             "status": _status(pdf_ok),
             "evidence_strength": "STRONG" if pdf_ok else "WEAK",
-            "evidence": {"path": "paper/final/best of n video transformer world model-v3.pdf", "pages": pdf_pages},
+            "evidence": {"path": "paper/final/best of n video transformer world model-v4.pdf", "pages": pdf_pages},
         }
     )
 
