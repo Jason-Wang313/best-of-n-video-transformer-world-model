@@ -36,7 +36,7 @@ The anonymous ICLR-style submission source is in `paper/main.tex` and uses the o
 Build the PDF with:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File paper/build_submission.ps1
+powershell -ExecutionPolicy Bypass -File paper/build_submission.ps1 -DesktopCopy "C:\Users\wangz\OneDrive\Desktop\best of n video transformer world model-v4.pdf"
 ```
 
 or:

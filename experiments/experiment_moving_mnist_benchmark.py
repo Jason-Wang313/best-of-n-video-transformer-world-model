@@ -6,6 +6,9 @@ import argparse
 from pathlib import Path
 from typing import Any
 
+import matplotlib
+
+matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt
 
 from experiments.common import FIGURES, RESULTS, write_csv, write_json

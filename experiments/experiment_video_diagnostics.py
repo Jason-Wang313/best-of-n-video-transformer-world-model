@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import matplotlib
+
+matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt
 
 from experiments.common import FIGURES, RESULTS, TABLES, summary_rows, write_csv, write_json

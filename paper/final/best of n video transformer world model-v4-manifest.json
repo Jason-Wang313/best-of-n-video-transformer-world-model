@@ -1,0 +1,19 @@
+{
+  "paper": "best of n video transformer world model-v4.pdf",
+  "source_folder": "C:\\Users\\wangz\\Downloads\\best of n video transformer world model",
+  "github_remote": "https://github.com/Jason-Wang313/best-of-n-video-transformer-world-model.git",
+  "repository_pdf": "paper/final/best of n video transformer world model-v4.pdf",
+  "desktop_pdf": "C:\\Users\\wangz\\OneDrive\\Desktop\\best of n video transformer world model-v4.pdf",
+  "sha256": "C0E87E1D9B2ED2BA526BE9C8FD437F1B9DA258D6456F8716EFFDDC04CC997375",
+  "pages": 28,
+  "verified_on": "2026-06-16",
+  "checks": {
+    "compileall": "passed",
+    "pytest": "16 passed",
+    "claim_audit": "passed",
+    "latex_final_log_scan": "passed",
+    "repo_desktop_hash_match": true,
+    "pdf_render": "all 28 pages rendered",
+    "visual_qa": "pages 1, 2, 10, 21, 26, and 28 inspected"
+  }
+}
