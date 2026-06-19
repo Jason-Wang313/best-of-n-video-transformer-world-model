@@ -7,10 +7,10 @@
 - GitHub remote: `https://github.com/Jason-Wang313/best-of-n-video-transformer-world-model.git`
 - Repository PDF: `paper/final/best of n video transformer world model-v4.pdf`
 - Visible Desktop PDF: `C:\Users\wangz\OneDrive\Desktop\best of n video transformer world model-v4.pdf`
-- SHA256: `C0E87E1D9B2ED2BA526BE9C8FD437F1B9DA258D6456F8716EFFDDC04CC997375`
+- SHA256: `6B777514EA77D7E1FDA04AA1F4DE67A04C8E20D82ED735163A8CE9AD8C1ADC59`
 - Page count: 28
 - Repo/Desktop hash match: yes
-- Verified on: 2026-06-16
+- Verified on: 2026-06-19
 
 ## Final Verification
 
@@ -31,7 +31,7 @@ Results:
 - Claim audit: passed.
 - Final LaTeX log scan: no unresolved citations, unresolved references, rerun warnings, overfull boxes, or natbib warnings.
 - PDF render: all 28 pages rendered.
-- Visual QA: pages 1, 2, 10, 21, 26, and 28 inspected for title/abstract, counterfactual video lineup, Moving-MNIST benchmark, appendix tables, claim/readiness text, clipping, and readability.
+- Visual QA: pages 1, 2, 6, 10, 14, 17, 26, and 28 inspected for title/abstract, counterfactual video lineup, stress plots, Moving-MNIST benchmark, appendix tables, claim/readiness text, clipping, and readability.
 
 Status: submission-ready v4
 
